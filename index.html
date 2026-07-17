@@ -117,7 +117,7 @@ a.ent:hover{color:var(--rojo); border-bottom-color:var(--rojo);}
 .meter .m-gap{margin-top:8px; font-size:11.5px; color:var(--ink-2);}
 .aviso{display:flex; gap:10px; align-items:center; margin:12px 18px; padding:11px 14px; border:1.5px dashed var(--rojo); border-radius:8px; background:var(--rojo-tinte); color:var(--rojo-osc); font-weight:700; font-size:11.5px; letter-spacing:.4px;}
 .aviso svg.ic{width:17px; height:17px; flex:none;}
-.bars svg{display:block; width:100%; height:auto;}
+.bars svg:not(.ic){display:block; width:100%; height:auto;}
 .bars text{font-family:inherit;}
 .bars g[data-band]{cursor:pointer;}
 .bars g[data-band]:hover rect[fill="transparent"]{fill:rgba(227,39,29,.05);}
@@ -809,8 +809,30 @@ function imgBtns(targetId, nombre){
   </span>`;
 }
 function capturaEl(el){
-  return html2canvas(el,{scale:2, backgroundColor:'#ffffff', logging:false,
-    onclone:d=>{ d.querySelectorAll('.tool-btns').forEach(x=>x.style.display='none'); }});
+  const r=el.getBoundingClientRect();
+  // holgura de ancho: html2canvas mide el texto un poco más ancho que el navegador
+  const w=Math.ceil(r.width*1.10)+16;
+  // altura real del contenido (las tarjetas en malla vienen estiradas a la altura de su vecina)
+  const cs=getComputedStyle(el);
+  const padV=(parseFloat(cs.paddingTop)||0)+(parseFloat(cs.paddingBottom)||0)+(parseFloat(cs.borderTopWidth)||0)+(parseFloat(cs.borderBottomWidth)||0);
+  const contentH=[...el.children].reduce((s,c)=>{
+    const m=getComputedStyle(c);
+    return s + c.getBoundingClientRect().height + (parseFloat(m.marginTop)||0) + (parseFloat(m.marginBottom)||0);
+  },0);
+  const h=Math.ceil(Math.min(r.height, contentH+padV)+2);
+  return html2canvas(el,{
+    scale:2, backgroundColor:'#ffffff', logging:false,
+    width:w, height:h,
+    windowWidth:document.documentElement.scrollWidth,
+    windowHeight:document.documentElement.scrollHeight,
+    onclone:d=>{
+      d.querySelectorAll('.tool-btns').forEach(x=>x.style.display='none');
+      const t=d.getElementById(el.id);
+      if(t){
+        t.style.width=w+'px'; t.style.maxWidth=w+'px';
+        t.style.flex='none'; t.style.height='auto';
+      }
+    }});
 }
 
 /* ---------------- PÁGINA: DIAGNÓSTICO ---------------- */
