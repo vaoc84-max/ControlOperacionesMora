@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Faces — Control de Mora CER</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root{
+  --rojo:#e3271d; --rojo-osc:#b31d15; --rojo-tinte:#fdf1f0; --rojo-borde:#f3d2cf;
+  --gris:#696667; --ink:#212226; --ink-2:#5b5c61; --ink-3:#8e9095;
+  --fondo:#f6f6f8; --surface:#ffffff; --hair:#e7e7ec; --hair-2:#f1f1f4;
+  --bueno:#1e7f3c; --bueno-bg:#e7f3ea; --alerta:#9a6400; --alerta-bg:#fcf3e1; --critico:#c0271e; --critico-bg:#fbeae8;
+  --data-rojo:#c0271e; --data-verde:#1e7f3c; --track:#eceef1;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif; background:var(--fondo); color:var(--ink); font-size:13px; -webkit-font-smoothing:antialiased;}
+svg.ic{width:15px; height:15px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; vertical-align:-2px; flex:none;}
+button{font-family:inherit;}
+
+/* ---------- header ---------- */
+header{background:var(--surface); padding:10px 26px; display:flex; align-items:center; gap:20px; border-bottom:1px solid var(--hair); box-shadow:0 1px 0 rgba(227,39,29,.9), 0 4px 14px rgba(20,20,25,.05);}
+.brand{display:flex; align-items:center; gap:12px; flex:none;}
+.brand .iso{height:44px; width:auto;}
+.brand .word{height:34px; width:auto;}
+.head-title{border-left:1px solid var(--hair); padding-left:20px;}
+.head-title h1{font-size:16.5px; font-weight:650; letter-spacing:-.2px;}
+.head-title p{font-size:11.5px; color:var(--ink-3); margin-top:1px;}
+.head-fechas{margin-left:auto; text-align:right; font-size:12px; color:var(--ink-2); line-height:1.5;}
+.head-fechas b{color:var(--rojo);}
+.head-fechas .rng{font-size:10.5px; color:var(--ink-3); text-transform:uppercase; letter-spacing:.8px;}
+
+/* ---------- nav ---------- */
+nav{display:flex; gap:2px; padding:0 26px; background:var(--surface); border-bottom:1px solid var(--hair); position:sticky; top:0; z-index:60;}
+nav a{display:flex; align-items:center; gap:7px; padding:11px 15px; font-size:12.5px; font-weight:600; color:var(--ink-2); text-decoration:none; border-bottom:3px solid transparent; margin-bottom:-1px;}
+nav a:hover{color:var(--ink); background:var(--hair-2);}
+nav a.act{color:var(--rojo); border-bottom-color:var(--rojo);}
+nav .nav-right{margin-left:auto; display:flex; align-items:center; gap:8px; padding:6px 0;}
+
+/* ---------- toolbar ---------- */
+.toolbar{display:flex; flex-wrap:wrap; gap:7px; align-items:center; padding:9px 26px; background:var(--surface); border-bottom:1px solid var(--hair);}
+.btn{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--hair); border-radius:6px; padding:6px 11px; font-size:12px; font-weight:600; cursor:pointer; color:var(--ink-2); background:var(--surface); transition:all .15s;}
+.btn:hover{border-color:#c9c9d2; color:var(--ink); background:var(--hair-2);}
+.btn.primario{background:var(--rojo); border-color:var(--rojo); color:#fff;}
+.btn.primario:hover{background:var(--rojo-osc);}
+.btn.act{border-color:var(--rojo); color:var(--rojo); background:var(--rojo-tinte);}
+.toolbar select{border:1px solid var(--hair); background:var(--surface); color:var(--ink); padding:6px 8px; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer;}
+.toolbar .sep{width:1px; height:22px; background:var(--hair); margin:0 3px;}
+.meta-box{display:inline-flex; align-items:center; gap:5px; font-size:11.5px; color:var(--ink-2); border:1px solid var(--hair); padding:4px 9px; border-radius:6px; background:var(--surface);}
+.meta-box input{width:50px; border:1px solid var(--hair); border-radius:4px; padding:3px 4px; font-size:11.5px; text-align:right; color:var(--ink);}
+.solo-tabla{display:none;}
+body[data-page="tabla"] .solo-tabla{display:inline-flex;}
+body[data-page="tabla"] select.solo-tabla{display:inline-block;}
+
+/* ---------- dropzone ---------- */
+#dropzone{margin:48px auto; max-width:720px; border:2px dashed #cfd0d8; border-radius:16px; background:var(--surface); padding:64px 44px; text-align:center; color:var(--ink-2); cursor:pointer; transition:all .2s;}
+#dropzone.over{border-color:var(--rojo); background:var(--rojo-tinte);}
+#dropzone svg{width:44px; height:44px; stroke:var(--rojo); stroke-width:1.5; fill:none; stroke-linecap:round; stroke-linejoin:round; margin-bottom:14px;}
+#dropzone h2{font-size:19px; color:var(--ink); margin-bottom:8px; font-weight:650;}
+#dropzone small{display:block; margin-top:12px; color:var(--ink-3);}
+
+/* ---------- layout ---------- */
+main{padding:18px 26px 70px; max-width:1680px; margin:0 auto;}
+.page{display:none;}
+.page.act{display:block;}
+section.panel{background:var(--surface); border:1px solid var(--hair); border-radius:10px; margin-bottom:16px; overflow:hidden; box-shadow:0 1px 3px rgba(20,20,25,.04);}
+.panel-head{padding:12px 18px; border-bottom:1px solid var(--hair); display:flex; align-items:center; gap:9px;}
+.panel-head h2{font-size:14px; font-weight:650; letter-spacing:-.1px; flex:1;}
+.panel-head .ic{color:var(--rojo); width:17px; height:17px;}
+.panel-head .hint{font-size:11px; color:var(--ink-3); font-weight:400;}
+.banner{border-left:3px solid var(--rojo); margin:14px 18px; padding:10px 14px; font-size:12.5px; line-height:1.6; background:var(--rojo-tinte); border-radius:0 8px 8px 0; color:#3a3b40;}
+.banner.ambar{border-left-color:#d98a00; background:var(--alerta-bg);}
+.banner.azul{border-left-color:#3567a8; background:#eef3fa;}
+.banner b{color:var(--ink);}
+
+/* ---------- KPI tiles ---------- */
+.kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; padding:16px 18px;}
+.kpi{border:1px solid var(--hair); border-radius:10px; padding:13px 15px; background:var(--surface);}
+.kpi .lbl{font-size:10.5px; font-weight:650; color:var(--ink-3); text-transform:uppercase; letter-spacing:.7px; display:flex; align-items:center; gap:6px;}
+.kpi .val{font-size:25px; font-weight:650; letter-spacing:-.5px; margin-top:5px; color:var(--ink);}
+.kpi .delta{margin-top:4px; font-size:11.5px; display:flex; align-items:center; gap:5px; color:var(--ink-2);}
+.kpi .delta .chip{font-weight:700;}
+
+/* chips & pills */
+.chip{display:inline-flex; align-items:center; gap:4px; padding:1.5px 8px; border-radius:10px; font-size:10.5px; font-weight:700;}
+.chip.up{background:var(--critico-bg); color:var(--critico);}
+.chip.down{background:var(--bueno-bg); color:var(--bueno);}
+.chip.flat{background:var(--hair-2); color:var(--ink-2);}
+.pill{display:inline-flex; align-items:center; gap:4px; padding:2px 9px; border-radius:10px; font-size:10px; font-weight:750; letter-spacing:.4px;}
+.pill.critico{background:var(--rojo); color:#fff;}
+.pill.alto{background:#e8930c; color:#fff;}
+.pill.medio{background:#f7d572; color:#6b5200;}
+.pill.bajo{background:var(--bueno-bg); color:var(--bueno);}
+.sem{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; flex:none;}
+.sem.v{background:var(--bueno);} .sem.a{background:#e8b70c;} .sem.r{background:var(--rojo);}
+
+/* links a detalle */
+a.ent{color:var(--ink); text-decoration:none; font-weight:650; border-bottom:1px dotted #c4c5cc;}
+a.ent:hover{color:var(--rojo); border-bottom-color:var(--rojo);}
+.sub{font-size:10px; color:var(--ink-3); display:block; font-weight:400; margin-top:1px;}
+
+/* ---------- gauges & charts ---------- */
+.viz-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; padding:4px 18px 18px;}
+.viz{border:1px solid var(--hair); border-radius:10px; padding:14px 16px; background:var(--surface);}
+.viz h3{font-size:12px; font-weight:650; color:var(--ink); margin-bottom:2px;}
+.viz .viz-sub{font-size:10.5px; color:var(--ink-3); margin-bottom:10px;}
+.meters{display:flex; flex-direction:column; gap:20px; padding:8px 4px 2px;}
+.meter .m-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:16px;}
+.meter .m-lbl{font-size:11px; font-weight:650; color:var(--ink-2); text-transform:uppercase; letter-spacing:.6px;}
+.meter .m-val{font-size:20px; font-weight:650; letter-spacing:-.4px; font-variant-numeric:normal;}
+.meter .m-track{position:relative; height:14px; border-radius:7px;}
+.meter .m-fill{position:absolute; left:0; top:0; bottom:0; border-radius:7px; min-width:3px;}
+.meter .m-tick{position:absolute; top:-5px; bottom:-5px; width:2px; background:#3a3b40; border-radius:1px;}
+.meter .m-tick i{position:absolute; top:-14px; left:50%; transform:translateX(-50%); font-style:normal; font-size:9.5px; font-weight:650; color:var(--ink-2); white-space:nowrap;}
+.meter .m-gap{margin-top:8px; font-size:11.5px; color:var(--ink-2);}
+.aviso{display:flex; gap:10px; align-items:center; margin:12px 18px; padding:11px 14px; border:1.5px dashed var(--rojo); border-radius:8px; background:var(--rojo-tinte); color:var(--rojo-osc); font-weight:700; font-size:11.5px; letter-spacing:.4px;}
+.aviso svg.ic{width:17px; height:17px; flex:none;}
+.bars svg{display:block; width:100%; height:auto;}
+.bars text{font-family:inherit;}
+.bars g[data-band]{cursor:pointer;}
+.bars g[data-band]:hover rect[fill="transparent"]{fill:rgba(227,39,29,.05);}
+.drill-box{margin-top:12px; border-top:1px solid var(--hair); padding-top:10px;}
+.drill-box .drill-head{display:flex; align-items:center; gap:8px; margin-bottom:6px;}
+.drill-box .drill-head h4{font-size:11.5px; font-weight:650; flex:1;}
+.drill-box .drill-head button{border:1px solid var(--hair); background:var(--surface); border-radius:5px; font-size:10.5px; cursor:pointer; padding:2px 8px; color:var(--ink-2);}
+tr.meta-ok td{background:var(--bueno-bg) !important;}
+tr.meta-obj td{background:var(--rojo-tinte);}
+#tooltip{position:fixed; z-index:200; pointer-events:none; background:#26272b; color:#fff; border-radius:7px; padding:8px 11px; font-size:11.5px; line-height:1.55; box-shadow:0 6px 20px rgba(0,0,0,.25); opacity:0; transition:opacity .1s; max-width:280px;}
+#tooltip .tt-t{font-weight:700; font-size:12px;}
+#tooltip .tt-k{color:#b9bac0;}
+
+/* ---------- tabla comparativa (árbol) ---------- */
+.tbl-wrap{overflow-x:auto; padding:0 18px 18px;}
+table.main{border-collapse:collapse; width:100%; font-size:11.5px; min-width:980px;}
+table.main th{background:#f8f8fa; color:var(--ink-2); padding:7px 7px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; text-align:center; border-bottom:2px solid var(--hair); white-space:nowrap;}
+table.main th.grp{color:var(--rojo); border-bottom-color:var(--rojo-borde); background:var(--rojo-tinte);}
+table.main td{padding:6px 7px; border-bottom:1px solid var(--hair-2); text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums;}
+table.main td.txt{text-align:left;}
+tr.zona td{background:var(--rojo); color:#fff; font-weight:650; font-size:12px; cursor:pointer; border-bottom:1px solid var(--rojo-osc);}
+tr.zona:hover td{background:var(--rojo-osc);}
+tr.zona td a.ent{color:#fff; border-bottom-color:rgba(255,255,255,.5);}
+tr.oficina td{background:#faf5f5; font-weight:650; color:#79241d; cursor:pointer; border-bottom:1px solid #f0e4e2;}
+tr.oficina:hover td{background:#f5eae9;}
+tr.subtotal td{background:#fbfbfc; font-weight:650; color:var(--ink-2); border-top:1px solid var(--hair);}
+tr.totalgen td{background:#2f3033; color:#fff; font-weight:650;}
+tr.asesor td{transition:background .08s;}
+tr.asesor:hover td{background:var(--rojo-tinte); box-shadow:inset 0 -1px 0 var(--rojo-borde), inset 0 1px 0 var(--rojo-borde);}
+tr.asesor:hover td:first-child{box-shadow:inset 3px 0 0 var(--rojo), inset 0 -1px 0 var(--rojo-borde), inset 0 1px 0 var(--rojo-borde);}
+tr.asesor:hover td.txt a.ent{color:var(--rojo);}
+td.mejora{color:var(--bueno); font-weight:600;}
+td.deterioro{color:var(--critico); font-weight:600;}
+td.heat1{background:#fdf4f3;} td.heat2{background:#fae4e1;} td.heat3{background:#f6d2cd;}
+td.cool1{background:#f2f8f3;} td.cool2{background:#e3f1e6;} td.cool3{background:#cfe8d6;}
+.tw{display:inline-flex; align-items:center; gap:2px;}
+.tg{width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; flex:none; cursor:pointer;}
+.tg svg{width:13px; height:13px; transition:transform .15s;}
+.tg.open svg{transform:rotate(90deg);}
+
+/* ---------- diagnóstico cards ---------- */
+.tabs{display:flex; gap:2px; padding:12px 18px 0;}
+.tab{display:inline-flex; align-items:center; gap:6px; padding:8px 16px; font-size:12px; font-weight:650; cursor:pointer; border:1px solid var(--hair); border-bottom:none; border-radius:8px 8px 0 0; background:var(--hair-2); color:var(--ink-2);}
+.tab.act{background:var(--surface); color:var(--rojo); border-color:var(--rojo-borde); box-shadow:0 2px 0 -1px var(--surface);}
+.tabline{height:1px; background:var(--rojo-borde); margin:0 18px;}
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:13px; padding:15px 18px;}
+.card{border:1px solid var(--hair); border-radius:10px; background:var(--surface); overflow:hidden; display:flex; flex-direction:column;}
+.card-head{display:flex; align-items:center; gap:8px; padding:10px 13px; border-bottom:1px solid var(--hair);}
+.card-head .ic{color:var(--gris);}
+.card-head h3{font-size:12px; font-weight:650; flex:1;}
+.cp{display:inline-flex; align-items:center; gap:4px; border:1px solid var(--hair); background:var(--surface); border-radius:5px; font-size:10.5px; cursor:pointer; padding:3px 8px; color:var(--ink-2);}
+.cp:hover{color:var(--ink); border-color:#c9c9d2;}
+.tool-btns{display:inline-flex; gap:4px; margin-left:auto; flex:none;}
+.tool-btns .cp{padding:4px 7px;}
+.viz-head{display:flex; align-items:flex-start; gap:8px;}
+.viz-head .vt{flex:1;}
+@media print{ .tool-btns{display:none !important;} }
+.card table{width:100%; border-collapse:collapse; font-size:11.5px;}
+.card th{background:#f8f8fa; color:var(--ink-2); padding:5px 9px; text-align:left; font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; white-space:nowrap; border-bottom:1px solid var(--hair);}
+.card td{padding:6px 9px; border-bottom:1px solid var(--hair-2); vertical-align:top; font-variant-numeric:tabular-nums;}
+.card tr:hover td{background:var(--rojo-tinte);}
+.card .ok-empty{padding:18px; color:var(--ink-2); font-size:12px;}
+
+/* ---------- plan ---------- */
+.plan-of{margin:13px 18px; border:1px solid var(--hair); border-radius:10px; overflow:hidden;}
+.plan-of-head{background:#faf5f5; padding:9px 14px; font-weight:650; color:#79241d; display:flex; gap:11px; align-items:center; flex-wrap:wrap; border-bottom:1px solid var(--hair);}
+.plan-of-head .foco{font-weight:400; font-size:11.5px; color:var(--ink-2);}
+.plan-of table{width:100%; border-collapse:collapse; font-size:11.5px;}
+.plan-of th{background:#f8f8fa; color:var(--ink-2); padding:6px 10px; font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; text-align:left; border-bottom:1px solid var(--hair);}
+.plan-of td{padding:7px 10px; border-bottom:1px solid var(--hair-2); vertical-align:top;}
+.plan-of tr:hover td{background:var(--rojo-tinte);}
+.ord{display:inline-flex; width:21px; height:21px; border-radius:50%; background:var(--rojo); color:#fff; align-items:center; justify-content:center; font-weight:700; font-size:11px; flex:none;}
+.ord.g{background:#c9cacf;}
+
+/* ---------- detalle ---------- */
+.bread{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-3); padding:2px 0 12px;}
+.bread a{color:var(--ink-2); text-decoration:none; font-weight:600;}
+.bread a:hover{color:var(--rojo);}
+.det-head{display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:16px 18px; border-bottom:1px solid var(--hair);}
+.det-head h2{font-size:19px; font-weight:650; letter-spacing:-.3px;}
+.det-head .tipo{font-size:10px; font-weight:750; letter-spacing:1px; color:var(--ink-3); text-transform:uppercase; border:1px solid var(--hair); border-radius:5px; padding:2px 7px;}
+.det-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:14px; padding:16px 18px;}
+table.det{width:100%; border-collapse:collapse; font-size:11.5px;}
+table.det th{background:#f8f8fa; color:var(--ink-2); padding:6px 8px; font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--hair); text-align:right; white-space:nowrap;}
+table.det th:first-child{text-align:left;}
+table.det td{padding:6px 8px; border-bottom:1px solid var(--hair-2); text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;}
+table.det td:first-child{text-align:left; font-weight:600;}
+table.det tr:hover td{background:var(--rojo-tinte);}
+.acc-list{padding:4px 18px 16px;}
+.acc{display:flex; gap:12px; padding:11px 4px; border-bottom:1px solid var(--hair-2); align-items:flex-start;}
+.acc .txt{flex:1;}
+.acc .txt b{font-size:12px;}
+.acc .txt p{font-size:11.5px; color:var(--ink-2); margin-top:2px; line-height:1.5;}
+.acc .resp{font-size:10.5px; color:var(--ink-3); margin-top:3px;}
+footer{padding:16px 26px; color:var(--ink-3); font-size:11px; text-align:center;}
+.hidden{display:none !important;}
+
+@media print{
+  nav, .toolbar, #dropzone, .cp, .tg{display:none !important;}
+  body{background:#fff; font-size:10.5px;}
+  main{padding:4px; max-width:none;}
+  section.panel{border:none; box-shadow:none; margin-bottom:10px; break-inside:avoid-page;}
+  .tbl-wrap{overflow:visible; padding:0;}
+  table.main{min-width:0;}
+  .page{display:none !important;}
+  .page.act{display:block !important;}
+}
+</style>
+</head>
+<body data-page="panel">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-gauge" viewBox="0 0 24 24"><path d="M12 15l3.5-5.5"/><path d="M20.5 15.5A9 9 0 1 0 3.5 15.5"/><circle cx="12" cy="15" r="1.5"/></symbol>
+<symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></symbol>
+<symbol id="i-diag" viewBox="0 0 24 24"><path d="M22 12h-4l-3 8-6-16-3 8H2"/></symbol>
+<symbol id="i-plan" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+<symbol id="i-print" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M21 8l-7 7-4-4-6 6"/><path d="M15 8h6v6"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M21 16l-7-7-4 4-6-6"/><path d="M15 16h6v-6"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.3 2.3 4.7-4.9"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7.5" r="3.5"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M15.5 4.1a3.5 3.5 0 0 1 0 6.8"/></symbol>
+<symbol id="i-build" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M9 21v-4h6v4M8 7h2M8 11h2M14 7h2M14 11h2"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></symbol>
+<symbol id="i-expand" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+<symbol id="i-collapse" viewBox="0 0 24 24"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></symbol>
+<symbol id="i-dl" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></symbol>
+</defs></svg>
+
+<div id="tooltip"></div>
+
+<header>
+  <div class="brand" id="brandLogo"></div>
+  <div class="head-title">
+    <h1>Control de Recuperación de Operaciones Vencidas — CER</h1>
+    <p>Comparativo de mora entre fechas · bandas CER · diagnóstico y plan de gestión según INS Gestión de Cobranzas v3.0</p>
+  </div>
+  <div class="head-fechas" id="headFechas"></div>
+</header>
+
+<nav id="mainNav" style="display:none">
+  <a href="#panel" data-pg="panel"><svg class="ic"><use href="#i-gauge"/></svg>Panel ejecutivo</a>
+  <a href="#tabla" data-pg="tabla"><svg class="ic"><use href="#i-table"/></svg>Comparativo</a>
+  <a href="#diag" data-pg="diag"><svg class="ic"><use href="#i-diag"/></svg>Diagnóstico</a>
+  <a href="#plan" data-pg="plan"><svg class="ic"><use href="#i-plan"/></svg>Plan de gestión</a>
+  <div class="nav-right">
+    <button class="btn" onclick="window.print()"><svg class="ic"><use href="#i-print"/></svg>Imprimir</button>
+    <button class="btn" id="btnOtro"><svg class="ic"><use href="#i-upload"/></svg>Cargar otro archivo</button>
+  </div>
+</nav>
+
+<div class="toolbar" id="toolbar" style="display:none">
+  <select id="selZona"></select>
+  <select id="selOficina"></select>
+  <select id="selAsesor" style="display:none"></select>
+  <span class="sep solo-tabla"></span>
+  <button class="btn solo-tabla" id="btnExpandir"><svg class="ic"><use href="#i-expand"/></svg>Expandir todo</button>
+  <button class="btn solo-tabla" id="btnContraer"><svg class="ic"><use href="#i-collapse"/></svg>Contraer todo</button>
+  <span class="sep solo-tabla"></span>
+  <button class="btn solo-tabla" id="btnDetalle">Detalle de fechas</button>
+  <button class="btn solo-tabla" id="btnModo">Ver CER acumulado</button>
+  <select class="solo-tabla" id="selMetrica">
+    <option value="saldo">Métrica: Saldo (USD)</option>
+    <option value="n">Métrica: N° de créditos</option>
+    <option value="ambos">Métrica: Saldo + N°</option>
+  </select>
+  <button class="btn solo-tabla" id="btnOrden">Orden: Prioridad</button>
+</div>
+
+<div id="dropzone">
+  <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></svg>
+  <h2>Arrastra aquí el reporte de mora (.xlsx)</h2>
+  <p>Reporte <b>909901 — Control de Recuperación de Operaciones Vencidas</b> exportado del Core Financiero, con el comparativo de dos fechas.</p>
+  <small>También puedes hacer clic para seleccionar el archivo. Todo se procesa en tu equipo, no se sube a ningún servidor.</small>
+  <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none">
+</div>
+
+<main id="app" class="hidden">
+  <div class="page" id="pg-panel"></div>
+  <div class="page" id="pg-tabla"></div>
+  <div class="page" id="pg-diag"></div>
+  <div class="page" id="pg-plan"></div>
+  <div class="page" id="pg-det"></div>
+</main>
+
+<footer>
+  Herramienta de control interno — Fundación FACES · CER acumulado (&gt;1, &gt;15, &gt;30, &gt;60, &gt;90, &gt;120) y bandas exclusivas (1–15, 16–30, 31–60, 61–90, 91–120, &gt;120) en monto y número · Acciones según Instructivo de Gestión de Cobranzas v3.0.
+</footer>
+<script>
+"use strict";
+/* ================================================================
+   Control de Mora CER v2 — Fundación FACES
+   ================================================================ */
+
+/* ---------------- LOGO OFICIAL (vector extraído de faces.org.ec) ---------------- */
+const LOGO_ISO = [
+ "M216.47,109.89A11.93,11.93,0,1,1,204.55,98a11.92,11.92,0,0,1,11.92,11.93",
+ "M237.16,135a11.94,11.94,0,1,1-11.94-11.94A11.94,11.94,0,0,1,237.16,135",
+ "M275.06,108.9l-21.33,17.77a11.94,11.94,0,1,1-15.29-18.35l21.32-17.77a11.95,11.95,0,1,1,15.3,18.35",
+ "M279.79,149.82l-7.45,6.2a7.67,7.67,0,0,1-10.81-1l-5.46-6.56a7.67,7.67,0,0,1,1-10.81l7.45-6.21a7.68,7.68,0,0,1,10.81,1l5.47,6.55a7.69,7.69,0,0,1-1,10.82",
+ "M280.24,62.27l-47.15,39.27A11.95,11.95,0,1,1,217.8,83.18L265,43.91a11.95,11.95,0,0,1,15.29,18.36"
+];
+const LOGO_WORD = [
+ "M59,259.39V171.84A7.81,7.81,0,0,1,66.82,164h47.12a8.49,8.49,0,1,1,0,17H77.8v26.31H110a8.49,8.49,0,0,1,0,17H77.8v35.09a9.4,9.4,0,0,1-18.79,0",
+ "M191.27,204V193h11.35a6.68,6.68,0,0,1,6.68,6.69v69h-8.89a9.14,9.14,0,0,1-9.14-9.14v-1.83c-2.56,7.37-11.72,12.63-24.2,12.63a36.39,36.39,0,0,1-27-11.28c-7.21-7.66-10.82-17-10.82-28.25s3.61-20.59,10.82-28.1a36,36,0,0,1,27-11.43c12.48,0,21.64,5.26,24.2,12.63m-5.41,43.43a23.59,23.59,0,0,0,0-33.06,22.44,22.44,0,0,0-16.38-6.61,21.73,21.73,0,0,0-16.08,6.61,22.92,22.92,0,0,0-6.32,16.53c0,6.61,2.11,12.18,6.32,16.53a21.74,21.74,0,0,0,16.08,6.62,22.45,22.45,0,0,0,16.38-6.62",
+ "M296.09,230.54c0-11.88,3.61-21.5,11-28.71,7.36-7.36,16.83-11,28.25-11,11,0,19.84,3.61,26.6,11,6.91,7.21,10.37,16.23,10.37,26.9,0,2.26-.15,4.51-.3,6.46H314c.6,12,9.47,19.69,22.84,19.69,11.88,0,20.89-2.85,27.2-8.71V263q-11,7.67-27.95,7.66c-11.87,0-21.64-3.6-29-10.67s-11-16.83-11-28.7ZM354,222.42A14.81,14.81,0,0,0,348.55,211a19.35,19.35,0,0,0-13.23-4.81A22.85,22.85,0,0,0,320.89,211c-4.06,3.15-6.16,6.91-6.46,11.42Z",
+ "M383.74,244.89c7.36,6.76,16.83,10.07,28.1,10.07,8,0,12.78-2.56,12.78-7.22,0-2.4-1.36-4.35-4.81-6.16a35.18,35.18,0,0,0-4.81-2.25c-3-1.35-9.32-3.91-12.78-5.26-10.66-4.66-16.08-11.88-16.08-21.34,0-6.77,2.56-12.18,7.67-16.09s11.72-5.86,19.54-5.86c8.26,0,15,1.66,20.44,5.11v16.38a36.73,36.73,0,0,0-19.69-5.71c-7.37,0-11,2.11-11,6.47a5.41,5.41,0,0,0,3,4.8c1.21.61,1.51.91,3.16,1.66,1.8.6,4.36,1.5,6.61,2.4,4.36,1.66,7.67,3.16,9.92,4.21a59.63,59.63,0,0,1,7.82,4.66c6,4.06,8.41,9.32,8.41,16.68,0,6.47-2.55,11.88-7.51,16.53s-12.63,6.77-23,6.77c-10.67,0-19.83-2.71-27.8-8.12Z",
+ "M286,197.71v21.58c-5.84-5.55-13.19-8.24-21.73-8.24-6.15,0-11.4,1.8-15.44,5.54a18.36,18.36,0,0,0-6,14.24c0,11.4,9,19.64,21.44,19.64,8.69,0,15.89-2.7,21.73-8.09v21.43c-6,4.65-13.79,6.9-23.53,6.9q-18.21,0-30.13-11.24c-7.95-7.65-11.85-17.09-11.85-28.64s3.9-21,11.85-28.63,18-11.39,30.13-11.39c9.44,0,17.39,2.25,23.53,6.9"
+];
+const LOGO_MICRO = [
+ {t:'g',p:"70.03 304.08 82.1 285.11 82.1 311.69 80.2 311.69 80.2 291.48 70.03 307.36 59.85 291.48 59.85 311.69 57.95 311.69 57.95 285.11 70.03 304.08"},
+ {t:'r',x:97.23,y:285.71,w:1.94,h:25.98},
+ {t:'d',p:"M134.24,288v2.27a11.46,11.46,0,0,0-8.21-3.17,11.15,11.15,0,0,0-8.23,3.32,12.18,12.18,0,0,0,0,16.63,11.18,11.18,0,0,0,8.23,3.31,11.42,11.42,0,0,0,8.21-3.17v2.24a12.51,12.51,0,0,1-8.21,2.72,13.09,13.09,0,0,1-9.57-3.84,13.77,13.77,0,0,1,0-19.16,13.15,13.15,0,0,1,9.57-3.87,12.51,12.51,0,0,1,8.21,2.72"},
+ {t:'d',p:"M148.28,311.69v-26h8.32a7.33,7.33,0,0,1,5.4,2.16,7.13,7.13,0,0,1,2.2,5.33,7.44,7.44,0,0,1-5.11,7.27l6.3,11.22h-2.12l-6.11-10.93a3.87,3.87,0,0,1-.79,0h-6.15v10.89ZM150.22,299h6.19a5.66,5.66,0,0,0,5.85-5.81,5.6,5.6,0,0,0-5.74-5.71h-6.3Z"},
+ {t:'d',p:"M199.38,289.13a13.51,13.51,0,0,1-19,19.17,13.51,13.51,0,0,1,19-19.17M198,307a12.08,12.08,0,0,0,0-16.55,11.67,11.67,0,0,0-16.37,0,12,12,0,0,0,0,16.55,11.16,11.16,0,0,0,8.24,3.32A11,11,0,0,0,198,307"},
+ {t:'g',p:"216.59 311.69 216.59 285.7 229.42 285.7 229.42 287.49 218.53 287.49 218.53 297.15 228.49 297.15 228.49 298.94 218.53 298.94 218.53 311.69 216.59 311.69"},
+ {t:'r',x:242.94,y:285.71,w:1.94,h:25.98},
+ {t:'g',p:"259.98 311.69 259.98 285 278.2 307.18 278.2 285.7 280.14 285.7 280.14 312.39 261.91 290.22 261.91 311.69 259.98 311.69"},
+ {t:'d',p:"M304.06,285l11.22,26.69h-2l-3-7.09H297.8l-3,7.09h-2Zm-5.48,17.81h11l-5.48-13.19Z"},
+ {t:'g',p:"327.99 311.69 327.99 285 346.21 307.18 346.21 285.7 348.15 285.7 348.15 312.39 329.93 290.22 329.93 311.69 327.99 311.69"},
+ {t:'g',p:"360.56 311.69 378.23 287.49 363.5 287.49 363.5 285.7 381.73 285.7 364.06 309.9 381.17 309.9 381.17 311.69 360.56 311.69"},
+ {t:'d',p:"M402.53,285l11.22,26.69h-2l-3-7.09H396.26l-3,7.09h-2Zm-5.48,17.81H408l-5.47-13.19Z"},
+ {t:'d',p:"M424,306.39a9.72,9.72,0,0,0,7.86,3.95c4,0,6.3-2.12,6.3-4.92a4.62,4.62,0,0,0-1.6-3.91,12,12,0,0,0-1.9-1.38c-.63-.41-1.56-.93-2.87-1.6a21.09,21.09,0,0,1-4.85-3.28,5.47,5.47,0,0,1-1.52-3.92c0-3.69,2.72-6.07,7.15-6.07a7.26,7.26,0,0,1,5.11,1.79v2.23a7,7,0,0,0-5.18-2.2c-3.24,0-5.15,1.68-5.15,4.25,0,2.28,1.49,3.54,5.26,5.48a22.32,22.32,0,0,1,5.78,3.88,6.45,6.45,0,0,1,1.71,4.73,6.21,6.21,0,0,1-2.2,4.81,8.65,8.65,0,0,1-5.89,1.9,10.36,10.36,0,0,1-8-3.31Z"}
+];
+function renderLogo(){
+  const iso = `<svg class="iso" viewBox="188 36 100 125" aria-label="FACES">${LOGO_ISO.map(d=>`<path d="${d}" fill="#e3271d"/>`).join('')}</svg>`;
+  const micro = LOGO_MICRO.map(s=> s.t==='g'? `<polygon points="${s.p}" fill="#e3271d"/>` : s.t==='r'? `<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" fill="#e3271d"/>` : `<path d="${s.p}" fill="#e3271d"/>`).join('');
+  const word = `<svg class="word" viewBox="52 160 412 156" aria-label="faces microfinanzas">${LOGO_WORD.map(d=>`<path d="${d}" fill="#696667"/>`).join('')}${micro}</svg>`;
+  document.getElementById('brandLogo').innerHTML = iso + word;
+}
+
+/* ---------------- ESTADO ---------------- */
+const S = {
+  fecha1:null, fecha2:null, zonas:[], total:null, fileTotals:null,
+  reg:new Map(), allAsesores:[], allOficinas:[],
+  exp:{ z:new Set(), o:new Set() },
+  scope:{ zona:'TODAS', oficina:'TODAS', asesor:'TODOS' },
+  ui:{ detalle:false, modo:'bandas', metrica:'saldo', orden:'prioridad', tab:'asesores', drillBand:null }
+};
+const CUM_LABELS = ['CER >1','CER >15','CER >30','CER >60','CER >90','CER >120'];
+const CUM_DAYS = [1,15,30,60,90,120];
+const BANDAS = [
+  { key:'b1_15',  label:'CER 1–15',   desc:'mora de 1 a 15 días' },
+  { key:'b16_30', label:'CER 16–30',  desc:'mora de 16 a 30 días' },
+  { key:'b31_60', label:'CER 31–60',  desc:'mora de 31 a 60 días' },
+  { key:'b61_90', label:'CER 61–90',  desc:'mora de 61 a 90 días' },
+  { key:'b91_120',label:'CER 91–120', desc:'mora de 91 a 120 días' },
+  { key:'b120',   label:'CER >120',   desc:'mora mayor a 120 días' },
+];
+const ACCIONES = [
+  { etapa:'1–15 días',   accion:'Llamadas del personal operativo (1–5 d) y entrega del Aviso de Vencimiento 1 — Anexo 4 (6–15 d). Contacto a deudor y garante, registro en el sistema.', resp:'Asesor de Crédito + Asistente operativo/caja', nivel:'Agencia' },
+  { etapa:'16–30 días',  accion:'Aviso de Vencimiento 2 — Anexo 5 (16–21 d) y Aviso de Vencimiento 3 — Anexo 6 (22–30 d), firmados y registrados en APP institucional y Core.', resp:'Asesor de Crédito + Jefatura de Agencia', nivel:'Agencia' },
+  { etapa:'31–60 días',  accion:'Acuerdo de Pago — Anexo 7 (31–45 d, negociación y firma) y Notificación Extrajudicial — Anexo 8 (46–65 d).', resp:'Jefe de Agencia; luego Jefe de Negocios Zonal + Oficial de Cobranzas', nivel:'Agencia / Zonal' },
+  { etapa:'61–90 días',  accion:'Notificación Extrajudicial e intensificación de llamadas; desde 67 d: empresas externas de cobranza, call center o preparación de demanda judicial.', resp:'Jefe Zonal + Oficial de Cobranzas / Área de Cobranzas', nivel:'Zonal / Cobranzas' },
+  { etapa:'91–120 días', accion:'Gestión intensiva y preparación de etapa judicial (96–125 d): coordinación con abogados externos; evaluar en Comité de Mora (preselección bimensual desde el día 15).', resp:'Área de Cobranzas + abogados externos', nivel:'Cobranzas' },
+  { etapa:'>120 días',   accion:'Gestión extrajudicial intensiva y/o proceso judicial activo (126–185 d): call center externo, visitas de campo, seguimiento de demanda; clasificación en Comité de Mora I/II.', resp:'Área de Cobranzas + empresas externas + abogados', nivel:'Cobranzas / Judicial' },
+];
+
+/* ---------------- UTILIDADES ---------------- */
+const $ = id => document.getElementById(id);
+const fmtMoney = new Intl.NumberFormat('es-EC',{style:'currency',currency:'USD',minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtMoney0 = new Intl.NumberFormat('es-EC',{style:'currency',currency:'USD',maximumFractionDigits:0});
+const fmtInt = new Intl.NumberFormat('es-EC');
+const money = v => fmtMoney.format(v||0);
+const money0 = v => fmtMoney0.format(v||0);
+const moneyS = v => (v>0?'+':'') + fmtMoney.format(v||0);
+const moneyS0 = v => (v>0?'+':'') + fmtMoney0.format(v||0);
+const int0 = v => fmtInt.format(Math.round(v||0));
+const intS = v => (v>0?'+':'') + fmtInt.format(Math.round(v||0));
+const pct = (v,d=1) => (v==null||!isFinite(v)) ? '—' : (v*100).toFixed(d).replace('.',',')+'%';
+const pctS = (v,d=1) => (v==null||!isFinite(v)) ? '—' : (v>0?'+':'')+(v*100).toFixed(d).replace('.',',')+'%';
+const esc = s => String(s??'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const icon = n => `<svg class="ic"><use href="#i-${n}"/></svg>`;
+function fmtFecha(d){ if(!d) return '—'; if(d instanceof Date && !isNaN(d)) return d.toLocaleDateString('es-EC',{day:'2-digit',month:'2-digit',year:'numeric'}); return String(d).split(' ')[0]; }
+function parseFecha(v){
+  if(v==null) return null;
+  if(v instanceof Date) return v;
+  if(typeof v==='number'){ const d=XLSX.SSF.parse_date_code(v); return d? new Date(d.y,d.m-1,d.d):null; }
+  const m=String(v).match(/(\d{4})-(\d{2})-(\d{2})/); if(m) return new Date(+m[1],+m[2]-1,+m[3]);
+  const m2=String(v).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m2) return new Date(+m2[3],+m2[2]-1,+m2[1]);
+  return null;
+}
+const num = v => (v==null||v==='') ? 0 : (typeof v==='number'? v : parseFloat(String(v).replace(/[^\d.-]/g,''))||0);
+const nomPila = s => String(s).trim().split(/\s+/).slice(0,2).join(' ');
+
+/* ---------------- PARSEO ---------------- */
+function parseWorkbook(wb){
+  const ws = wb.Sheets[wb.SheetNames[0]];
+  const aoa = XLSX.utils.sheet_to_json(ws,{header:1, raw:true, defval:null});
+  let hr = aoa.findIndex(r => r && String(r[0]??'').trim().toUpperCase()==='ZONA');
+  if(hr<0) throw new Error('No se encontró la fila de encabezado "ZONA". Verifica que sea el reporte 909901 exportado a Excel.');
+  S.fecha1=S.fecha2=null;
+  for(let i=0;i<hr;i++){
+    const a=String(aoa[i]?.[0]??'').toLowerCase();
+    if(a.includes('desde')) S.fecha1=parseFecha(aoa[i][1]);
+    if(a.includes('hasta')) S.fecha2=parseFecha(aoa[i][1]);
+  }
+  const blocks=[];
+  aoa[hr].forEach((v,c)=>{ const m=String(v??'').replace(/\s+/g,'').match(/^CER>?(\d+)$/i); if(m) blocks.push({days:+m[1], col:c}); });
+  blocks.sort((a,b)=>a.days-b.days);
+  if(blocks.length<2) throw new Error('No se encontraron los bloques CER en el encabezado.');
+  const recCol = aoa[hr].findIndex(v=>String(v??'').toUpperCase().includes('RECUPERA'));
+  const zonas=[]; let zona=null, oficina=null;
+  const fileTotals={general:null};
+  for(let r=hr+3; r<aoa.length; r++){
+    const row=aoa[r]; if(!row) continue;
+    const A=row[0]!=null?String(row[0]).trim():'', B=row[1]!=null?String(row[1]).trim():'', D=row[3]!=null?String(row[3]).trim():'';
+    if(A.startsWith('Usuario:')) break;
+    const readCums = () => blocks.map(b=>({ n1:num(row[b.col]), n2:num(row[b.col+1]), s1:num(row[b.col+4]), s2:num(row[b.col+5]) }));
+    const readRec = () => recCol<0?null:{ abN:num(row[recCol]), abM:num(row[recCol+1]), cuN:num(row[recCol+3]), cuM:num(row[recCol+4]), tot:num(row[recCol+6]) };
+    if(/^TOTAL/i.test(A)){ if(/^TOTAL\s+(FACES|GENERAL)/i.test(A)) fileTotals.general={nCartera:num(row[4]), saldoCartera:num(row[5]), cums:readCums()}; continue; }
+    if(/^TOTAL/i.test(B)) continue;
+    if(A && !B && !D && row[4]==null) continue;
+    if(A){ zona={nombre:A, oficinas:[]}; zonas.push(zona); }
+    if(B){ oficina={nombre:B, asesores:[]}; zona && zona.oficinas.push(oficina); }
+    if(D && oficina) oficina.asesores.push({ nombre:D, nCartera:num(row[4]), saldoCartera:num(row[5]), cums:readCums(), rec:readRec() });
+  }
+  S.zonas=zonas.filter(z=>z.oficinas.length);
+  S.fileTotals=fileTotals;
+  if(!S.zonas.length) throw new Error('No se encontraron filas de asesores en el archivo.');
+  computeAll();
+}
+
+/* ---------------- CÁLCULOS ---------------- */
+function deriveEntity(e){
+  e.cums.forEach(c=>{ c.nVar=c.n2-c.n1; c.sVar=c.s2-c.s1; c.nPct=c.n1? c.nVar/c.n1:null; c.sPct=c.s1? c.sVar/c.s1:null; });
+  e.bandas = BANDAS.map((b,i)=>{
+    const cur=e.cums[i], next=e.cums[i+1];
+    const n1 = next? cur.n1-next.n1 : cur.n1, n2 = next? cur.n2-next.n2 : cur.n2;
+    const s1 = next? cur.s1-next.s1 : cur.s1, s2 = next? cur.s2-next.s2 : cur.s2;
+    return { ...b, n1,n2,s1,s2, nVar:n2-n1, sVar:s2-s1, nPct:n1? (n2-n1)/n1:null, sPct:s1? (s2-s1)/s1:null };
+  });
+  e.cer1pct  = e.saldoCartera? e.cums[0].s2/e.saldoCartera : 0;
+  e.cer1pct1 = e.saldoCartera? e.cums[0].s1/e.saldoCartera : 0;
+  e.cer30pct = e.saldoCartera? e.cums[2].s2/e.saldoCartera : 0;
+  e.earlyS = e.bandas[0].sVar + e.bandas[1].sVar;
+  e.earlyN = e.bandas[0].nVar + e.bandas[1].nVar;
+  e.earlyRel = e.saldoCartera? e.earlyS/e.saldoCartera : 0;
+  e.detRel   = e.saldoCartera? e.cums[0].sVar/e.saldoCartera : 0;
+}
+function sumEntities(list){
+  const agg={ nCartera:0, saldoCartera:0, cums:CUM_DAYS.map(()=>({n1:0,n2:0,s1:0,s2:0})), rec:{abN:0,abM:0,cuN:0,cuM:0,tot:0} };
+  list.forEach(e=>{
+    agg.nCartera+=e.nCartera; agg.saldoCartera+=e.saldoCartera;
+    e.cums.forEach((c,i)=>{ agg.cums[i].n1+=c.n1; agg.cums[i].n2+=c.n2; agg.cums[i].s1+=c.s1; agg.cums[i].s2+=c.s2; });
+    if(e.rec){ agg.rec.abN+=e.rec.abN; agg.rec.abM+=e.rec.abM; agg.rec.cuN+=e.rec.cuN; agg.rec.cuM+=e.rec.cuM; agg.rec.tot+=e.rec.tot; }
+  });
+  return agg;
+}
+function percentileRanks(items, getter){
+  const sorted=[...items].sort((a,b)=>getter(a)-getter(b));
+  const n=sorted.length, map=new Map();
+  sorted.forEach((it,i)=>{ if(!map.has(it)) map.set(it, n>1? i/(n-1):0.5); });
+  return it=>map.get(it);
+}
+function scoreGroup(items){
+  if(!items.length) return;
+  const pNivel=percentileRanks(items,e=>e.cer1pct), pDet=percentileRanks(items,e=>e.detRel),
+        pEarly=percentileRanks(items,e=>e.earlyRel), pEarlyN=percentileRanks(items,e=>e.earlyN);
+  items.forEach(e=>{
+    e.score=Math.round(100*(0.30*pNivel(e)+0.25*pDet(e)+0.30*pEarly(e)+0.15*pEarlyN(e)));
+    e.nivelPri = e.score>=75?'CRÍTICO': e.score>=55?'ALTO': e.score>=35?'MEDIO':'BAJO';
+    let bi=0; e.bandas.forEach((b,i)=>{ if(b.sVar>e.bandas[bi].sVar) bi=i; });
+    e.bandaDominante = e.bandas[bi].sVar>0 ? bi : null;
+  });
+}
+function computeAll(){
+  S.reg.clear(); const allA=[], allO=[];
+  S.zonas.forEach((z,i)=>{
+    z.id='z'+i; z.tipo='zona';
+    z.oficinas.forEach((o,j)=>{
+      o.id=`o${i}_${j}`; o.tipo='oficina'; o.zona=z.nombre; o.zonaId=z.id;
+      o.asesores.forEach((a,k)=>{
+        a.id=`a${i}_${j}_${k}`; a.tipo='asesor'; a.zona=z.nombre; a.oficina=o.nombre; a.zonaId=z.id; a.ofId=o.id;
+        deriveEntity(a); S.reg.set(a.id,a); allA.push(a);
+      });
+      Object.assign(o, sumEntities(o.asesores)); deriveEntity(o); S.reg.set(o.id,o); allO.push(o);
+    });
+    Object.assign(z, sumEntities(z.oficinas)); deriveEntity(z); S.reg.set(z.id,z);
+  });
+  S.total = sumEntities(S.zonas); deriveEntity(S.total);
+  S.allAsesores=allA; S.allOficinas=allO;
+  scoreGroup(allA); scoreGroup(allO); scoreGroup(S.zonas);
+  S.exp.z = new Set(S.zonas.map(z=>z.id));
+  S.exp.o = new Set(allO.map(o=>o.id));
+}
+
+/* ---------------- ÁMBITO (scope) y visibilidad ---------------- */
+function scopedZonas(){ return S.zonas.filter(z=>S.scope.zona==='TODAS'||z.nombre===S.scope.zona); }
+function scopedOficinas(){ return scopedZonas().flatMap(z=>z.oficinas).filter(o=>S.scope.oficina==='TODAS'||o.nombre===S.scope.oficina); }
+function scopedAsesores(){ return scopedOficinas().flatMap(o=>o.asesores); }
+function visibleOficinas(){ return scopedOficinas().filter(o=>S.exp.z.has(o.zonaId)); }
+function visibleAsesores(){ return visibleOficinas().filter(o=>S.exp.o.has(o.id)).flatMap(o=>o.asesores); }
+function scopeAgg(){
+  const os=scopedOficinas();
+  if(S.scope.zona==='TODAS' && S.scope.oficina==='TODAS') return S.total;
+  const agg=sumEntities(os.flatMap(o=>o.asesores)); deriveEntity(agg); return agg;
+}
+function scopeLabel(){
+  if(S.scope.oficina!=='TODAS') return S.scope.oficina;
+  if(S.scope.zona!=='TODAS') return S.scope.zona;
+  return 'FACES (todas las zonas)';
+}
+
+/* ---------------- SEMÁFOROS (vs promedio institucional, sin metas) ---------------- */
+function semNivel(cerPct){ const ref=S.total? S.total.cer1pct:0; if(!ref) return 'a'; return cerPct<=ref*0.8?'v': cerPct<=ref*1.2?'a':'r'; }
+function heatClass(rel){ if(rel>0.004) return rel>0.015?'heat3':rel>0.008?'heat2':'heat1'; if(rel<-0.004) return rel<-0.015?'cool3':rel<-0.008?'cool2':'cool1'; return ''; }
+const varClass = v => v>0?'deterioro': v<0?'mejora':'';
+const chipVar = (v, fmt) => `<span class="chip ${v>0?'up':v<0?'down':'flat'}">${v>0?'▲':v<0?'▼':'•'} ${fmt(v)}</span>`;
+const pillPri = e => {
+  if(!e.nivelPri) return '';
+  const tt = JSON.stringify([
+    {v:`Prioridad ${e.nivelPri} · score ${e.score} / 100`},
+    {k:'Qué es', v:'Puntaje que ordena a cada asesor/oficina frente a sus pares en el período, combinando 4 factores'},
+    {k:'1) Nivel de CER>1 (pesa 30%)', v:pct(e.cer1pct)},
+    {k:'2) Deterioro del CER>1 (25%)', v:moneyS(e.cums[0].sVar)},
+    {k:'3) Δ mora temprana 1–30 d (30%)', v:moneyS(e.earlyS)},
+    {k:'4) Créditos rodando 1–30 d (15%)', v:intS(e.earlyN)},
+    {k:'Escala', v:'CRÍTICO ≥75 · ALTO ≥55 · MEDIO ≥35 · BAJO <35'}
+  ]);
+  return `<span class="pill ${e.nivelPri.toLowerCase().replace('í','i')}" data-tt='${tt.replace(/'/g,"&#39;")}'>${e.nivelPri}</span>`;
+};
+const linkEnt = (e, txt) => `<a class="ent" href="#det:${e.id}">${esc(txt||e.nombre)}</a>`;
+
+/* ---------------- TOOLTIP ---------------- */
+const tipEl = document.getElementById('tooltip');
+function showTip(ev, rows){
+  tipEl.innerHTML='';
+  rows.forEach((r,i)=>{
+    const d=document.createElement('div');
+    if(i===0) d.className='tt-t';
+    if(r.k!=null){ const k=document.createElement('span'); k.className='tt-k'; k.textContent=r.k+': '; d.appendChild(k); }
+    d.appendChild(document.createTextNode(r.v));
+    tipEl.appendChild(d);
+  });
+  moveTip(ev); tipEl.style.opacity=1;
+}
+function moveTip(ev){
+  const w=tipEl.offsetWidth, h=tipEl.offsetHeight;
+  let x=ev.clientX+14, y=ev.clientY+14;
+  if(x+w>window.innerWidth-8) x=ev.clientX-w-14;
+  if(y+h>window.innerHeight-8) y=ev.clientY-h-14;
+  tipEl.style.left=x+'px'; tipEl.style.top=y+'px';
+}
+function hideTip(){ tipEl.style.opacity=0; }
+document.body.addEventListener('pointermove',ev=>{
+  const t=ev.target.closest('[data-tt]');
+  if(t){ try{ showTip(ev, JSON.parse(t.dataset.tt)); }catch(e){} } else hideTip();
+});
+document.body.addEventListener('pointerleave',hideTip);
+
+/* ---------------- MEDIDORES (indicador vs meta) ---------------- */
+const AVISO_COBRANZAS = 'REVISAR LA OPCIÓN DE COBRANZAS PARA VERIFICAR ACCIONES — ABONOS Y CUMPLIMIENTO DE LOS COMPROMISOS';
+const avisoHTML = () => `<div class="aviso">${icon('alert')}<span>${AVISO_COBRANZAS}</span></div>`;
+/* ---------------- GRÁFICO: barras divergentes por banda ---------------- */
+function bandDivergingSVG(e, opts={}){
+  const data = e.bandas.map(b=>({lab:b.label, v:b.sVar, n:b.nVar, s1:b.s1, s2:b.s2}));
+  const maxAbs = Math.max(...data.map(d=>Math.abs(d.v)), 1);
+  const W=480, labW=78, valW=74, plotW=W-labW-valW, rowH=27, barH=15, H=data.length*rowH+14;
+  const x0=labW+plotW/2, scale=(plotW/2-6)/maxAbs;
+  let g='';
+  data.forEach((d,i)=>{
+    const y=10+i*rowH, w=Math.abs(d.v)*scale;
+    const col = d.v>0? 'var(--data-rojo)' : d.v<0? 'var(--data-verde)' : '#c9cacf';
+    const x = d.v>=0? x0 : x0-w;
+    const tt=JSON.stringify([{v:d.lab},{k:'Δ Saldo',v:moneyS(d.v)},{k:'Δ Créditos',v:intS(d.n)},{k:fmtFecha(S.fecha1),v:money(d.s1)},{k:fmtFecha(S.fecha2),v:money(d.s2)},{k:'Lectura',v:d.v>0?'La mora de esta banda creció':'La mora de esta banda se redujo'}]);
+    const rx = d.v>=0? `M ${x} ${y} h ${Math.max(w-4,0)} a 4 4 0 0 1 4 4 v ${barH-8} a 4 4 0 0 1 -4 4 h -${Math.max(w-4,0)} z`
+                     : `M ${x0} ${y} h -${Math.max(w-4,0)} a 4 4 0 0 0 -4 4 v ${barH-8} a 4 4 0 0 0 4 4 h ${Math.max(w-4,0)} z`;
+    g+=`<g data-tt='${tt.replace(/'/g,"&#39;")}' ${opts.drill? `data-band="${i}"`:''}>
+      <rect x="0" y="${y-5}" width="${W}" height="${rowH-2}" fill="transparent"/>
+      ${w>1? `<path d="${rx}" fill="${col}"/>` : `<rect x="${x0-1}" y="${y}" width="2" height="${barH}" fill="${col}"/>`}
+      <text x="${labW-6}" y="${y+barH/2+3.5}" text-anchor="end" font-size="10.5" font-weight="600" fill="#5b5c61">${esc(d.lab)}</text>
+      ${(()=>{ const fits = d.v>=0 || (x0-w-8) > labW+42;
+        const tx = d.v>=0? x0+w+6 : (fits? x0-w-6 : x0+8);
+        const ta = d.v>=0? 'start' : (fits? 'end':'start');
+        return `<text x="${tx}" y="${y+barH/2+3.5}" text-anchor="${ta}" font-size="10.5" font-weight="650" fill="${d.v>0?'#c0271e': d.v<0?'#1e7f3c':'#8e9095'}">${moneyS0(d.v)}</text>`; })()}
+    </g>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img">
+    <line x1="${x0}" y1="4" x2="${x0}" y2="${H-4}" stroke="#e7e7ec" stroke-width="1"/>
+    ${g}
+  </svg>`;
+}
+
+/* ---------------- Nivel de despliegue según filtro ---------------- */
+function drillLevel(){
+  if(S.scope.oficina!=='TODAS') return { items:scopedAsesores(), lbl:'asesor', pl:'asesores' };
+  if(S.scope.zona!=='TODAS')    return { items:scopedOficinas(), lbl:'oficina', pl:'oficinas' };
+  return { items:S.zonas, lbl:'zona', pl:'zonas' };
+}
+
+/* ---------------- GRÁFICO: ranking de entidades (genérico, divergente) ---------------- */
+function rankDivergingSVG(items, opts={}){
+  const getV = opts.val || (d=>d.cums[0].sVar);
+  const vName = opts.valName || 'Δ CER>1 (saldo)';
+  const data=[...items].sort((a,b)=>getV(b)-getV(a));
+  const maxAbs=Math.max(...data.map(d=>Math.abs(getV(d))),1);
+  const W=580, labW=156, valW=84, plotW=W-labW-valW, rowH=29, barH=16, H=data.length*rowH+14;
+  const x0=labW+plotW/2, scale=(plotW/2-6)/maxAbs;
+  let g='';
+  data.forEach((d,i)=>{
+    const v=getV(d), y=10+i*rowH, w=Math.abs(v)*scale;
+    const col=v>0?'var(--data-rojo)': v<0?'var(--data-verde)':'#c9cacf';
+    const fs = 11; // tamaño de fuente ampliado
+    const tt=JSON.stringify(opts.tt? opts.tt(d) : [{v:d.nombre},{k:vName,v:moneyS(v)},{k:'Δ CER>1 (créditos)',v:intS(d.cums[0].nVar)},{k:'CER>1 actual',v:pct(d.cer1pct)},{k:'Mora temprana Δ',v:moneyS(d.earlyS)},{k:'Prioridad',v:d.nivelPri+' ('+d.score+')'}]);
+    const rx = v>=0? `M ${x0} ${y} h ${Math.max(w-4,0)} a 4 4 0 0 1 4 4 v ${barH-8} a 4 4 0 0 1 -4 4 h -${Math.max(w-4,0)} z`
+                   : `M ${x0} ${y} h -${Math.max(w-4,0)} a 4 4 0 0 0 -4 4 v ${barH-8} a 4 4 0 0 0 4 4 h ${Math.max(w-4,0)} z`;
+    g+=`<g data-tt='${tt.replace(/'/g,"&#39;")}'>
+      <rect x="0" y="${y-5}" width="${W}" height="${rowH-2}" fill="transparent"/>
+      ${w>1? `<path d="${rx}" fill="${col}"/>` : `<rect x="${x0-1}" y="${y}" width="2" height="${barH}" fill="${col}"/>`}
+      <a href="#det:${d.id}"><text x="${labW-8}" y="${y+barH/2+3.5}" text-anchor="end" font-size="${fs}" font-weight="600" fill="#5b5c61" style="cursor:pointer">${esc(String(d.nombre).length>24? String(d.nombre).slice(0,23)+'…':d.nombre)}</text></a>
+      ${(()=>{ const fits = v>=0 || (x0-w-8) > labW+48;
+        const tx = v>=0? x0+w+6 : (fits? x0-w-6 : x0+8);
+        const ta = v>=0? 'start' : (fits? 'end':'start');
+        return `<text x="${tx}" y="${y+barH/2+3.5}" text-anchor="${ta}" font-size="${fs}" font-weight="650" fill="${v>0?'#c0271e': v<0?'#1e7f3c':'#8e9095'}">${moneyS0(v)}</text>`; })()}
+    </g>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" role="img">
+    <line x1="${x0}" y1="4" x2="${x0}" y2="${H-4}" stroke="#e7e7ec" stroke-width="1"/>
+    ${g}
+  </svg>`;
+}
+
+/* ---------------- PÁGINA: PANEL EJECUTIVO ---------------- */
+function renderPanel(){
+  const agg=scopeAgg(), c1=agg.cums[0], c30=agg.cums[2];
+  const ases=scopedAsesores(), ofis=scopedOficinas();
+  const dias=(S.fecha1&&S.fecha2)? Math.round((S.fecha2-S.fecha1)/86400000):null;
+  const asesCrec=ases.filter(a=>a.earlyS>0).length;
+  const criticos=[...ases].sort((a,b)=>b.score-a.score).slice(0,5);
+  const bandasCrec=agg.bandas.filter(b=>b.sVar>0).sort((a,b)=>b.sVar-a.sVar);
+  const dl=drillLevel();
+  let drillHTML='';
+  if(S.ui.drillBand!=null){
+    const bi=S.ui.drillBand, b=BANDAS[bi];
+    drillHTML=`<div class="drill-box"><div class="drill-head"><h4>Composición de <b>${b.label}</b> — Δ saldo por ${dl.lbl}</h4><button data-closedrill="1">✕ Cerrar</button></div>
+      <div class="bars">${rankDivergingSVG(dl.items, { val:e=>e.bandas[bi].sVar, valName:`Δ ${b.label} (saldo)`,
+        tt:e=>[{v:e.nombre},{k:`Δ ${b.label} saldo`,v:moneyS(e.bandas[bi].sVar)},{k:`Δ ${b.label} créditos`,v:intS(e.bandas[bi].nVar)},{k:`Saldo ${b.label} al corte`,v:money(e.bandas[bi].s2)},{k:'Créditos en banda',v:int0(e.bandas[bi].n2)}] })}</div></div>`;
+  }
+  $('pg-panel').innerHTML = `
+  <section class="panel">
+    <div class="panel-head">${icon('gauge')}<h2>Panel ejecutivo — ${esc(scopeLabel())}</h2>
+    <span class="hint">${fmtFecha(S.fecha1)} → ${fmtFecha(S.fecha2)}${dias?` · ${dias} días`:''}</span></div>
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">${icon('file')}Cartera total</div><div class="val">${money0(agg.saldoCartera)}</div><div class="delta">${int0(agg.nCartera)} créditos</div></div>
+      <div class="kpi"><div class="lbl">${icon('alert')}Saldo en mora (CER&gt;1)</div><div class="val">${money0(c1.s2)}</div><div class="delta">${chipVar(c1.sVar,moneyS0)} <span>${pctS(c1.sPct)} vs fecha inicial</span></div></div>
+      <div class="kpi"><div class="lbl">${icon('users')}Créditos en mora</div><div class="val">${int0(c1.n2)}</div><div class="delta">${chipVar(c1.nVar,intS)} <span>créditos</span></div></div>
+      <div class="kpi"><div class="lbl">${icon('up')}Mora temprana Δ (1–30 d)</div><div class="val" style="color:${agg.earlyS>0?'var(--critico)':'var(--bueno)'}">${moneyS0(agg.earlyS)}</div><div class="delta">${chipVar(agg.earlyN,intS)} <span>créditos rodando</span></div></div>
+    </div>
+    <div class="viz-row" style="grid-template-columns:repeat(auto-fit,minmax(440px,1fr))">
+      <div class="viz bars" id="vizBandas"><div class="viz-head"><span class="vt"><h3>¿Dónde crece la mora? — variación por banda</h3>
+        <div class="viz-sub">Δ saldo entre fechas · rojo crece, verde se recupera · <b>clic en una banda</b> para desplegar por ${dl.lbl}</div></span>${imgBtns('vizBandas','Donde crece la mora')}</div>
+        ${bandDivergingSVG(agg,{drill:true})}
+        ${drillHTML}
+      </div>
+      <div class="viz bars" id="vizRank"><div class="viz-head"><span class="vt"><h3>${S.scope.oficina!=='TODAS'?'Asesores':'Oficinas'} por deterioro de CER&gt;1</h3><div class="viz-sub">Δ saldo CER&gt;1 entre fechas · clic en el nombre abre su diagnóstico · pase el cursor para detalle</div></span>${imgBtns('vizRank','Deterioro de CER1')}</div>
+        ${rankDivergingSVG(S.scope.oficina!=='TODAS'? ases : ofis)}
+      </div>
+    </div>
+    <div class="banner">
+      <b>Lectura ejecutiva:</b> la cartera en riesgo CER&gt;1 ${c1.sVar>0?'se deterioró':'mejoró'} <b>${moneyS(c1.sVar)}</b> (${pctS(c1.sPct)}) en el período y se ubica en <b>${pct(agg.cer1pct)}</b> de la cartera.
+      ${bandasCrec.length? `Las bandas en crecimiento son ${bandasCrec.slice(0,3).map(b=>`<b>${b.label}</b> (${moneyS0(b.sVar)})`).join(', ')}.`:'Ninguna banda crece en saldo.'}
+      <b>${asesCrec}</b> de ${ases.length} asesores presentan maduración de mora temprana.
+      Recuperación del período: <b>${money(agg.rec.tot)}</b>.
+    </div>
+  </section>
+  <section class="panel">
+    <div class="panel-head">${icon('target')}<h2>¿Dónde trabajar primero?</h2><span class="hint">oficinas ordenadas por prioridad y, dentro de cada una, sus asesores más urgentes · clic en el nombre abre el diagnóstico</span>${imgBtns('cardTrabajar','Donde trabajar primero')}</div>
+    <div class="cards" style="grid-template-columns:1fr;">
+      <div class="card" id="cardTrabajar"><table>
+        <thead><tr><th style="width:34px">#</th><th>Oficina / Asesor</th><th>Prioridad</th><th>CER&gt;1</th><th>Δ CER&gt;1</th><th>Δ Mora 1–30 d</th><th>Banda que crece → primera acción</th></tr></thead>
+        <tbody>${(()=>{
+          const topOfis=[...ofis].sort((a,b)=>b.score-a.score).slice(0, S.scope.oficina!=='TODAS'?1:5);
+          const nAses = S.scope.oficina!=='TODAS'? 99 : 3;
+          return topOfis.map((o,i)=>{
+            const accO=o.bandaDominante!=null? ACCIONES[o.bandaDominante]:null;
+            let h=`<tr style="background:#faf5f5"><td><span class="ord">${i+1}</span></td>
+              <td><b>${linkEnt(o)}</b><span class="sub">${esc(o.zona)} · ${o.asesores.length} asesores</span></td>
+              <td>${pillPri(o)} <span class="sub">score ${o.score}</span></td>
+              <td><span class="sem ${semNivel(o.cer1pct)}"></span><b>${pct(o.cer1pct)}</b></td>
+              <td>${chipVar(o.cums[0].sVar,moneyS0)}</td><td>${chipVar(o.earlyS,moneyS0)}</td>
+              <td>${o.bandaDominante!=null? `<b>${BANDAS[o.bandaDominante].label}</b> (${moneyS0(o.bandas[o.bandaDominante].sVar)})<span class="sub">${esc(accO.accion.split('.')[0])}. — ${esc(accO.resp)}</span>`:'<span class="sub">Sin banda en crecimiento; mantener gestión preventiva.</span>'}</td></tr>`;
+            h+=[...o.asesores].sort((a,b)=>b.score-a.score).slice(0,nAses).map((a,j)=>{
+              const acc=a.bandaDominante!=null? ACCIONES[a.bandaDominante]:null;
+              return `<tr><td style="text-align:right; color:var(--ink-3)">${i+1}.${j+1}</td>
+              <td style="padding-left:26px">${linkEnt(a)}</td>
+              <td>${pillPri(a)} <span class="sub">score ${a.score}</span></td>
+              <td><span class="sem ${semNivel(a.cer1pct)}"></span>${pct(a.cer1pct)}</td>
+              <td>${chipVar(a.cums[0].sVar,moneyS0)}</td><td>${chipVar(a.earlyS,moneyS0)}</td>
+              <td>${a.bandaDominante!=null? `<b>${BANDAS[a.bandaDominante].label}</b> (${moneyS0(a.bandas[a.bandaDominante].sVar)})<span class="sub">${esc(acc.accion.split('.')[0])}. — ${esc(acc.resp)}</span>`:'<span class="sub">Sin banda en crecimiento; mantener gestión preventiva.</span>'}</td></tr>`;
+            }).join('');
+            return h;
+          }).join('');
+        })()}</tbody>
+      </table></div>
+    </div>
+    ${avisoHTML()}
+  </section>`;
+}
+
+/* ---------------- PÁGINA: COMPARATIVO (árbol) ---------------- */
+function bandCols(){
+  const modo=S.ui.modo, met=S.ui.metrica, det=S.ui.detalle;
+  const defs = modo==='bandas'? BANDAS.map(b=>b.label) : CUM_LABELS;
+  const sub=[]; const f1=fmtFecha(S.fecha1), f2=fmtFecha(S.fecha2);
+  (met==='ambos'?['saldo','n']:[met]).forEach(m=>{
+    const tag=m==='saldo'?'Saldo':'N°';
+    const pre=met==='ambos'? tag+' ' : '';
+    if(det){ sub.push({m,k:'v1',t:`${pre}${f1}`},{m,k:'v2',t:`${pre}${f2}`},{m,k:'var',t:`Δ ${tag}`},{m,k:'pct',t:'Δ %'}); }
+    else sub.push({m,k:'var',t:`Δ ${tag}`},{m,k:'pct',t:'Δ %'});
+  });
+  return {defs, sub};
+}
+function cellsForEntity(e){
+  const {defs, sub}=bandCols(); let tds='';
+  defs.forEach((_,i)=>{
+    const b=S.ui.modo==='bandas'? e.bandas[i] : e.cums[i];
+    sub.forEach(sc=>{
+      const isS=sc.m==='saldo';
+      const v1=isS?b.s1:b.n1, v2=isS?b.s2:b.n2, vv=isS?b.sVar:b.nVar, vp=isS?b.sPct:b.nPct;
+      const rel=e.saldoCartera? (isS? b.sVar/e.saldoCartera:0):0;
+      if(sc.k==='v1') tds+=`<td>${isS?money(v1):int0(v1)}</td>`;
+      else if(sc.k==='v2') tds+=`<td>${isS?money(v2):int0(v2)}</td>`;
+      else if(sc.k==='var') tds+=`<td class="${varClass(vv)} ${isS?heatClass(rel):''}">${isS?moneyS(vv):intS(vv)}</td>`;
+      else tds+=`<td class="${varClass(vv)}">${pctS(vp)}</td>`;
+    });
+  });
+  return tds;
+}
+function renderTabla(){
+  const {defs, sub}=bandCols(); const span=sub.length;
+  const chev=(open)=>`<span class="tg ${open?'open':''}"><svg class="ic"><use href="#i-chev"/></svg></span>`;
+  let h=`<section class="panel">
+    <div class="panel-head">${icon('table')}<h2>${S.ui.modo==='bandas'?'Comparativo por bandas de mora (exclusivas)':'Comparativo de CER acumulado'}</h2>
+    <span class="hint">clic en una zona u oficina para expandir/contraer · clic en un nombre abre su diagnóstico${S.ui.orden==='prioridad'?' · zonas, oficinas y asesores ordenados del más crítico al menos crítico (score de prioridad)':' · orden original del reporte'}</span></div>
+    <div class="tbl-wrap"><table class="main"><thead><tr>
+    <th rowspan="2" style="text-align:left; min-width:250px;">Zona / Oficina / Asesor</th>
+    <th rowspan="2">Cartera N°</th><th rowspan="2">Cartera Saldo</th>
+    <th rowspan="2">CER&gt;1 %</th>
+    ${defs.map(d=>`<th class="grp" colspan="${span}">${d}</th>`).join('')}
+    <th rowspan="2">Recup. Total</th><th rowspan="2">Prioridad</th></tr>
+    <tr>${defs.map(()=>sub.map(sc=>`<th>${sc.t}</th>`).join('')).join('')}</tr></thead><tbody>`;
+
+  const row=(e, cls, inner, indent, toggle='')=>`<tr class="${cls}" ${toggle}>
+    <td class="txt" style="padding-left:${indent}px">${inner}</td>
+    <td>${int0(e.nCartera)}</td><td>${money(e.saldoCartera)}</td>
+    <td class="${cls!=='zona'&&cls!=='totalgen'&&semNivel(e.cer1pct)==='r'?'deterioro':''}">${pct(e.cer1pct)}</td>
+    ${cellsForEntity(e)}
+    <td>${e.rec? money(e.rec.tot):'—'}</td>
+    <td style="text-align:center">${e.nivelPri? pillPri(e):''}</td></tr>`;
+
+  const porPrioridad = S.ui.orden==='prioridad';
+  const zs=[...scopedZonas()]; if(porPrioridad) zs.sort((a,b)=>b.score-a.score);
+  zs.forEach(z=>{
+    const zOpen=S.exp.z.has(z.id);
+    h+=row(z,'zona',`<span class="tw">${chev(zOpen)}${linkEnt(z)}<span style="font-weight:400; opacity:.75; margin-left:6px">${z.oficinas.length} oficinas</span></span>`,6,`data-tgz="${z.id}"`);
+    if(!zOpen) return;
+    const ofs=z.oficinas.filter(o=>S.scope.oficina==='TODAS'||o.nombre===S.scope.oficina);
+    if(porPrioridad) ofs.sort((a,b)=>b.score-a.score);
+    ofs.forEach(o=>{
+      const oOpen=S.exp.o.has(o.id);
+      h+=row(o,'oficina',`<span class="tw">${chev(oOpen)}${linkEnt(o)}<span style="font-weight:400; color:var(--ink-3); margin-left:6px">${o.asesores.length} asesores</span></span>`,22,`data-tgo="${o.id}"`);
+      if(oOpen){
+        const as=[...o.asesores];
+        // más crítico primero: score de prioridad descendente
+        if(porPrioridad) as.sort((a,b)=> (b.score-a.score) || (b.earlyS-a.earlyS));
+        as.forEach(a=>{ h+=row(a,'asesor',`<span style="display:inline-flex;align-items:center"><span class="sem ${semNivel(a.cer1pct)}"></span>${linkEnt(a)}</span>`,46); });
+      }
+    });
+  });
+  if(S.scope.zona==='TODAS'&&S.scope.oficina==='TODAS') h+=row(S.total,'totalgen','TOTAL FACES',6);
+  h+='</tbody></table></div></section>';
+  $('pg-tabla').innerHTML=h;
+}
+
+/* ---------------- BOTONES DE IMAGEN (copiar / compartir / descargar) ---------------- */
+function imgBtns(targetId, nombre){
+  const n=esc(String(nombre).replace(/<[^>]*>/g,''));
+  return `<span class="tool-btns">
+    <button class="cp" data-imgact="copy" data-target="${targetId}" data-nombre="${n}" title="Copiar como imagen">${icon('copy')}</button>
+    <button class="cp" data-imgact="share" data-target="${targetId}" data-nombre="${n}" title="Compartir imagen">${icon('share')}</button>
+    <button class="cp" data-imgact="dl" data-target="${targetId}" data-nombre="${n}" title="Descargar imagen (PNG)">${icon('dl')}</button>
+  </span>`;
+}
+function capturaEl(el){
+  return html2canvas(el,{scale:2, backgroundColor:'#ffffff', logging:false,
+    onclone:d=>{ d.querySelectorAll('.tool-btns').forEach(x=>x.style.display='none'); }});
+}
+
+/* ---------------- PÁGINA: DIAGNÓSTICO ---------------- */
+let cardSeq=0;
+function card(titulo, ic, filas, cols, vacio){
+  const id='card'+(++cardSeq);
+  let html=`<div class="card" id="${id}"><div class="card-head">${icon(ic)}<h3>${titulo}</h3>${imgBtns(id, titulo)}</div>`;
+  if(!filas.length) html+=`<div class="ok-empty">${vacio||'Sin registros para esta condición.'}</div>`;
+  else{
+    html+=`<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+    filas.forEach(f=>{ html+=`<tr>${f.map(c=>`<td>${c}</td>`).join('')}</tr>`; });
+    html+='</tbody></table>';
+  }
+  return html+'</div>';
+}
+function buildDiagCards(items, esOficina){
+  const lbl=esOficina?'Oficina':'Asesor';
+  const mad=[...items].filter(e=>e.earlyS>0).sort((a,b)=>b.earlyS-a.earlyS).slice(0,8)
+    .map((e,i)=>[`${i+1}. ${linkEnt(e)}<span class="sub">${esOficina? esc(e.zona): esc(e.oficina)}</span>`,
+      `${chipVar(e.earlyS,moneyS0)}<span class="sub">${intS(e.earlyN)} créditos</span>`,
+      `1–15: ${moneyS0(e.bandas[0].sVar)}<span class="sub">16–30: ${moneyS0(e.bandas[1].sVar)}</span>`, pillPri(e)]);
+  const det=[...items].filter(e=>e.cums[0].sVar>0).sort((a,b)=>b.cums[0].sVar-a.cums[0].sVar).slice(0,8)
+    .map((e,i)=>[`${i+1}. ${linkEnt(e)}<span class="sub">${esOficina? esc(e.zona): esc(e.oficina)}</span>`,
+      `${chipVar(e.cums[0].sVar,moneyS0)}<span class="sub">${pctS(e.cums[0].sPct)}</span>`, `${intS(e.cums[0].nVar)} créd.`, `${pct(e.cer1pct)}`]);
+  const rec=[...items].filter(e=>e.cums[0].sVar<0).sort((a,b)=>a.cums[0].sVar-b.cums[0].sVar).slice(0,8)
+    .map((e,i)=>[`${i+1}. ${linkEnt(e)}<span class="sub">${esOficina? esc(e.zona): esc(e.oficina)}</span>`,
+      `${chipVar(e.cums[0].sVar,moneyS0)}<span class="sub">${pctS(e.cums[0].sPct)}</span>`, `${intS(e.cums[0].nVar)} créd.`, `${pct(e.cer1pct)}`]);
+  const pri=[...items].sort((a,b)=>b.score-a.score).slice(0,10).map((e,i)=>{
+    const acc=e.bandaDominante!=null? ACCIONES[e.bandaDominante]:null;
+    return [`<span class="ord">${i+1}</span>`,
+      `${linkEnt(e)}<span class="sub">${esOficina? esc(e.zona): esc(e.oficina)} · CER&gt;1 ${pct(e.cer1pct)} · Δ ${moneyS0(e.cums[0].sVar)}</span>`,
+      `${pillPri(e)}<span class="sub">score ${e.score}</span>`,
+      acc? `<b>${BANDAS[e.bandaDominante].label}</b> crece ${moneyS0(e.bandas[e.bandaDominante].sVar)}<span class="sub">${esc(acc.accion)}</span><span class="sub"><b>Responsable:</b> ${esc(acc.resp)}</span>`
+         : `Sin banda en crecimiento<span class="sub">Mantener gestión preventiva y seguimiento de compromisos.</span>`];
+  });
+  return card(`Maduración temprana de cartera (crece la mora 1–30 días)`, 'up', mad, [lbl,'Δ Mora temprana','Detalle por banda','Prioridad'], 'Ninguno presenta crecimiento de mora temprana entre las fechas.')+
+    card(`Mayores deterioros de CER&gt;1 (saldo)`, 'alert', det, [lbl,'Δ Saldo CER&gt;1','Δ N°','CER&gt;1 actual'], 'Nadie deteriora su CER>1.')+
+    card(`Mejores recuperaciones de CER&gt;1`, 'check', rec, [lbl,'Δ Saldo CER&gt;1','Δ N°','CER&gt;1 actual'], 'Ninguno redujo su saldo en mora.')+
+    card(`Prioridad de gestión — ¿a quién atender primero y qué hacer?`, 'target', pri, ['#',lbl,'Prioridad','Banda que crece → acción normativa'], '');
+}
+function renderDiag(){
+  const agg=scopeAgg(), c1=agg.cums[0], c30=agg.cums[2];
+  const vAses=visibleAsesores(), vOfis=visibleOficinas();
+  const ases=vAses.length? vAses : scopedAsesores();
+  const ofis=vOfis.length? vOfis : scopedOficinas();
+  if(!vAses.length && S.ui.tab==='asesores' && vOfis.length) S.ui.tab='oficinas';
+  const b=agg.bandas, crec=b.filter(x=>x.sVar>0).sort((x,y)=>y.sVar-x.sVar);
+  const asesCrec=ases.filter(a=>a.earlyS>0).length;
+  $('pg-diag').innerHTML=`
+  <section class="panel">
+    <div class="panel-head">${icon('diag')}<h2>Diagnóstico — ${esc(scopeLabel())}</h2>
+    <span class="hint">siguiendo la agrupación del comparativo: ${vOfis.length} oficinas y ${vAses.length} asesores desplegados</span></div>
+    <div class="banner"><b>Evolución de la mora:</b> entre el <b>${fmtFecha(S.fecha1)}</b> y el <b>${fmtFecha(S.fecha2)}</b> el CER&gt;1 pasó de <b>${money(c1.s1)}</b> a <b>${money(c1.s2)}</b>
+      (<b style="color:${c1.sVar>0?'var(--critico)':'var(--bueno)'}">${moneyS(c1.sVar)}, ${pctS(c1.sPct)}</b>) y de ${int0(c1.n1)} a ${int0(c1.n2)} créditos (${intS(c1.nVar)}).
+      CER&gt;1 sobre cartera: <b>${pct(agg.cer1pct)}</b> · CER&gt;30: <b>${pct(agg.cer30pct)}</b> con variación ${moneyS(c30.sVar)} (${pctS(c30.sPct)}).
+      Recuperación: <b>${money(agg.rec.tot)}</b> (${int0(agg.rec.abN)} abonos por ${money(agg.rec.abM)} + ${int0(agg.rec.cuN)} cuotas por ${money(agg.rec.cuM)}).</div>
+    <div class="banner ambar"><b>Maduración de cartera:</b> variación en bandas tempranas — <b>CER 1–15: ${moneyS(b[0].sVar)} (${intS(b[0].nVar)} créd.)</b> · <b>CER 16–30: ${moneyS(b[1].sVar)} (${intS(b[1].nVar)} créd.)</b>.
+      ${crec.length? `Bandas en crecimiento: ${crec.slice(0,3).map(x=>`<b>${x.label}</b> (${moneyS0(x.sVar)})`).join(', ')}. `:'Ninguna banda crece en saldo. '}
+      <b>${asesCrec} de ${ases.length} asesores</b> presentan crecimiento de mora temprana (1–30 días): concentre ahí la gestión de agencia (llamadas y Avisos 1–3) para evitar el rodamiento a tramos extrajudiciales y judiciales.</div>
+    <div class="banner azul"><b>¿Qué significa el score de prioridad?</b> Es un puntaje de 0 a 100 que ordena a cada asesor u oficina comparándolo con sus pares en el período analizado. Combina cuatro factores: nivel de CER&gt;1 sobre su cartera (pesa 30%), deterioro del saldo CER&gt;1 entre las fechas (25%), crecimiento de la mora temprana 1–30 días (30%) y número de créditos rodando en esas bandas (15%). Escala: <b>CRÍTICO ≥75 · ALTO ≥55 · MEDIO ≥35 · BAJO &lt;35</b>. Pase el cursor sobre cualquier etiqueta de prioridad para ver el detalle de esa persona u oficina.</div>
+    <div class="tabs">
+      <div class="tab ${S.ui.tab==='asesores'?'act':''}" data-tab="asesores">${icon('users')}Asesores</div>
+      <div class="tab ${S.ui.tab==='oficinas'?'act':''}" data-tab="oficinas">${icon('build')}Oficinas</div>
+    </div><div class="tabline"></div>
+    <div class="cards ${S.ui.tab!=='asesores'?'hidden':''}" id="cardsAsesores">${buildDiagCards(ases,false)}</div>
+    <div class="cards ${S.ui.tab!=='oficinas'?'hidden':''}" id="cardsOficinas">${buildDiagCards(ofis,true)}</div>
+  </section>`;
+}
+
+/* ---------------- PÁGINA: PLAN ---------------- */
+function planRowsFor(e){
+  const orden=[...e.bandas.keys()].sort((a,b)=>{
+    const A=e.bandas[a], B=e.bandas[b];
+    if((B.sVar>0)-(A.sVar>0)) return (B.sVar>0)-(A.sVar>0);
+    return B.sVar-A.sVar || B.s2-A.s2;
+  });
+  return orden.map((bi,k)=>{
+    const b=e.bandas[bi], acc=ACCIONES[bi];
+    const tend=b.sVar>0? chipVar(b.sVar,moneyS0)+` <span class="sub">${intS(b.nVar)} créd.</span>` : b.sVar<0? chipVar(b.sVar,moneyS0)+` <span class="sub">${intS(b.nVar)} créd.</span>` : '<span class="chip flat">estable</span>';
+    return `<tr>
+      <td><span class="ord ${b.sVar>0?'':'g'}">${k+1}</span></td>
+      <td><b>${b.label}</b><span class="sub">${acc.etapa}</span></td>
+      <td style="text-align:right">${int0(b.n2)}</td><td style="text-align:right">${money(b.s2)}</td><td>${tend}</td>
+      <td>${esc(acc.accion)}</td><td>${esc(acc.resp)}<span class="sub">${esc(acc.nivel)}</span></td></tr>`;
+  }).join('');
+}
+function planText(e){
+  const L=[];
+  const ctx = e.tipo==='asesor'? `${e.zona} / ${e.oficina} / ${e.nombre}` : e.tipo==='oficina'? `${e.zona} / ${e.nombre}` : e.nombre;
+  L.push(`PLAN DE GESTIÓN DE COBRANZA — ${ctx}`);
+  L.push(`Comparativo ${fmtFecha(S.fecha1)} → ${fmtFecha(S.fecha2)} · Prioridad: ${e.nivelPri||'-'} · CER>1: ${pct(e.cer1pct)} · Δ CER>1: ${moneyS(e.cums[0].sVar)} · Mora temprana (1–30 d): ${moneyS(e.earlyS)}`);
+  L.push('');
+  const orden=[...e.bandas.keys()].sort((a,b)=>{
+    const A=e.bandas[a],B=e.bandas[b];
+    if((B.sVar>0)-(A.sVar>0)) return (B.sVar>0)-(A.sVar>0);
+    return B.sVar-A.sVar || B.s2-A.s2;
+  });
+  orden.forEach((bi,k)=>{
+    const b=e.bandas[bi], acc=ACCIONES[bi];
+    L.push(`${k+1}) ${b.label} (${acc.etapa}) — ${int0(b.n2)} créditos · ${money(b.s2)} · Tendencia: ${b.sVar>0?'▲':'▼'} ${moneyS(b.sVar)} / ${intS(b.nVar)} créd.`);
+    L.push(`   Acción: ${acc.accion}`);
+    L.push(`   Responsable: ${acc.resp} (${acc.nivel})`);
+  });
+  L.push('');
+  L.push(AVISO_COBRANZAS);
+  return L.join('\n');
+}
+function planBlock(e, titulo){
+  const top = e.asesores? [...e.asesores].sort((a,b)=>b.earlyS-a.earlyS).slice(0,2) : null;
+  return `<div class="plan-of" id="plan_${e.id}">
+  <div class="plan-of-head"><span>${titulo}</span>${e.nivelPri? pillPri(e):''}
+    <span class="foco">CER&gt;1: <b>${pct(e.cer1pct)}</b> · Δ CER&gt;1: <b>${moneyS0(e.cums[0].sVar)}</b> · Mora temprana: <b>${moneyS0(e.earlyS)}</b>${top? ` · Atención prioritaria: ${top.map(a=>linkEnt(a,nomPila(a.nombre))).join(' · ')||'—'}`:''}</span>
+    ${imgBtns('plan_'+e.id, 'Plan '+String(e.nombre))}</div>
+  <table><thead><tr><th style="width:40px">Orden</th><th>Banda</th><th style="text-align:right">Créditos</th><th style="text-align:right">Saldo</th><th>Tendencia</th><th>Acción según instructivo</th><th>Responsable</th></tr></thead>
+  <tbody>${planRowsFor(e)}</tbody></table></div>`;
+}
+function renderPlan(){
+  const ofiSel = S.scope.oficina!=='TODAS';
+  let cuerpo='';
+  if(ofiSel){
+    const o=scopedOficinas()[0];
+    if(o){
+      const asesSel = S.scope.asesor && S.scope.asesor!=='TODOS';
+      if(!asesSel) cuerpo+=planBlock(o, `${esc(o.zona)} — ${linkEnt(o)} (oficina completa)`);
+      const ases = asesSel? o.asesores.filter(a=>a.nombre===S.scope.asesor) : [...o.asesores].sort((a,b)=>b.earlyS-a.earlyS);
+      cuerpo+=ases.map(a=>planBlock(a, `${esc(o.nombre)} — ${linkEnt(a)}`)).join('');
+    }
+  } else {
+    cuerpo=[...scopedOficinas()].sort((a,b)=>b.score-a.score).map(o=>planBlock(o, `${esc(o.zona)} — ${linkEnt(o)}`)).join('');
+  }
+  $('pg-plan').innerHTML=`
+  <section class="panel">
+    <div class="panel-head">${icon('plan')}<h2>Plan de gestión de cobranza — ${esc(scopeLabel())}${ofiSel && S.scope.asesor!=='TODOS'? ' · '+esc(S.scope.asesor):''}</h2>
+    <span class="hint">${ofiSel? 'use el selector "Asesor" de la barra para enfocar a una persona':'oficinas ordenadas por prioridad'} · acciones según INS Gestión de Cobranzas v3.0</span></div>
+    <div class="banner azul">Orden de trabajo sugerido: primero las bandas donde la mora <b>está creciendo</b> (contención temprana para evitar el rodamiento a bandas superiores), con la acción normativa y el responsable de cada tramo. Los saldos y créditos corresponden al corte del ${fmtFecha(S.fecha2)}. Cada bloque tiene su botón <b>Copiar para correo/Teams</b>.</div>
+    ${avisoHTML()}
+    ${cuerpo}
+  </section>`;
+}
+
+/* ---------------- PÁGINA: DETALLE ---------------- */
+function renderDet(id){
+  const e=S.reg.get(id);
+  if(!e){ location.hash='#panel'; return; }
+  const c1=e.cums[0];
+  const peers = e.tipo==='asesor'? S.reg.get(e.ofId).asesores : e.tipo==='oficina'? S.allOficinas : S.zonas;
+  const rank = [...peers].sort((a,b)=>b.score-a.score).findIndex(x=>x===e)+1;
+  const crumb = [`<a href="#panel">Panel</a>`];
+  if(e.tipo!=='zona' && e.zonaId) crumb.push(`<a href="#det:${e.zonaId}">${esc(e.zona||'')}</a>`);
+  if(e.tipo==='asesor') crumb.push(`<a href="#det:${e.ofId}">${esc(e.oficina)}</a>`);
+  crumb.push(`<b>${esc(e.nombre)}</b>`);
+  const hijos = e.tipo==='zona'? e.oficinas : e.tipo==='oficina'? e.asesores : null;
+  const bandasTbl = e.bandas.map((b,i)=>{
+    const rel=e.saldoCartera? b.sVar/e.saldoCartera:0;
+    return `<tr><td>${b.label}<span class="sub">${b.desc}</span></td>
+      <td>${int0(b.n1)}</td><td>${int0(b.n2)}</td><td class="${varClass(b.nVar)}">${intS(b.nVar)}</td>
+      <td>${money(b.s1)}</td><td>${money(b.s2)}</td>
+      <td class="${varClass(b.sVar)} ${heatClass(rel)}">${moneyS(b.sVar)}</td>
+      <td class="${varClass(b.sVar)}">${pctS(b.sPct)}</td></tr>`;
+  }).join('') + `<tr style="font-weight:700; background:#fbfbfc"><td>TOTAL CER &gt;1</td>
+      <td>${int0(c1.n1)}</td><td>${int0(c1.n2)}</td><td class="${varClass(c1.nVar)}">${intS(c1.nVar)}</td>
+      <td>${money(c1.s1)}</td><td>${money(c1.s2)}</td><td class="${varClass(c1.sVar)}">${moneyS(c1.sVar)}</td><td class="${varClass(c1.sVar)}">${pctS(c1.sPct)}</td></tr>`;
+
+  $('pg-det').innerHTML=`
+  <div class="bread">${crumb.join(`<svg class="ic" style="width:12px;height:12px"><use href="#i-chev"/></svg>`)}</div>
+  <section class="panel">
+    <div class="det-head">
+      <a class="btn" href="javascript:history.back()">${icon('back')}Volver</a>
+      <span class="tipo">${e.tipo}</span><h2>${esc(e.nombre)}</h2>
+      ${e.nivelPri? pillPri(e):''} ${e.score!=null? `<span class="sub" style="font-size:11px">score ${e.score} · puesto ${rank} de ${peers.length} ${e.tipo==='asesor'?'en su oficina':e.tipo==='oficina'?'entre oficinas':'entre zonas'} por prioridad</span>`:''}
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">${icon('file')}Cartera</div><div class="val">${money0(e.saldoCartera)}</div><div class="delta">${int0(e.nCartera)} créditos</div></div>
+      <div class="kpi"><div class="lbl">${icon('alert')}CER&gt;1 al ${fmtFecha(S.fecha2)}</div><div class="val">${money0(c1.s2)}</div><div class="delta">${chipVar(c1.sVar,moneyS0)} <span>${pctS(c1.sPct)}</span></div></div>
+      <div class="kpi"><div class="lbl">${icon('up')}Mora temprana Δ (1–30 d)</div><div class="val" style="color:${e.earlyS>0?'var(--critico)':'var(--bueno)'}">${moneyS0(e.earlyS)}</div><div class="delta">${chipVar(e.earlyN,intS)} <span>créditos</span></div></div>
+      <div class="kpi"><div class="lbl">${icon('check')}Recuperación</div><div class="val">${money0(e.rec?e.rec.tot:0)}</div><div class="delta">${e.rec? int0(e.rec.abN)+' abonos · '+int0(e.rec.cuN)+' cuotas':'—'}</div></div>
+    </div>
+    <div class="viz-row" style="grid-template-columns:1fr">
+      <div class="viz bars" style="max-width:820px" id="detViz"><div class="viz-head"><span class="vt"><h3>Variación por banda entre fechas</h3><div class="viz-sub">Δ saldo · rojo crece, verde se recupera</div></span>${imgBtns('detViz','Variacion por banda '+String(e.nombre))}</div>${bandDivergingSVG(e)}</div>
+    </div>
+    ${avisoHTML()}
+  </section>
+  <section class="panel" id="detBandas">
+    <div class="panel-head">${icon('table')}<h2>Comparativo por banda</h2><span class="hint">${fmtFecha(S.fecha1)} → ${fmtFecha(S.fecha2)}</span>${imgBtns('detBandas','Comparativo '+String(e.nombre))}</div>
+    <div class="tbl-wrap" style="padding:0 18px 16px"><table class="det"><thead><tr>
+      <th>Banda</th><th>N° ${fmtFecha(S.fecha1)}</th><th>N° ${fmtFecha(S.fecha2)}</th><th>Δ N°</th>
+      <th>Saldo ${fmtFecha(S.fecha1)}</th><th>Saldo ${fmtFecha(S.fecha2)}</th><th>Δ Saldo</th><th>Δ %</th></tr></thead>
+      <tbody>${bandasTbl}</tbody></table></div>
+  </section>
+  ${hijos? `<section class="panel">
+    <div class="panel-head">${icon(e.tipo==='zona'?'build':'users')}<h2>${e.tipo==='zona'?'Oficinas de la zona':'Asesores de la oficina'}</h2><span class="hint">ordenados por prioridad · clic para abrir su diagnóstico</span>${imgBtns('detHijos','Equipo '+String(e.nombre))}</div>
+    <div class="cards" style="grid-template-columns:1fr"><div class="card" id="detHijos"><table>
+      <thead><tr><th>#</th><th>${e.tipo==='zona'?'Oficina':'Asesor'}</th><th>Prioridad</th><th style="text-align:right">Cartera</th><th>CER&gt;1</th><th>Δ CER&gt;1</th><th>Δ Mora 1–30 d</th><th>Banda dominante</th></tr></thead>
+      <tbody>${[...hijos].sort((a,b)=>b.score-a.score).map((x,i)=>`<tr>
+        <td>${i+1}</td><td>${linkEnt(x)}</td><td>${pillPri(x)}<span class="sub">score ${x.score}</span></td>
+        <td style="text-align:right">${money0(x.saldoCartera)}</td>
+        <td><span class="sem ${semNivel(x.cer1pct)}"></span>${pct(x.cer1pct)}</td>
+        <td>${chipVar(x.cums[0].sVar,moneyS0)}</td><td>${chipVar(x.earlyS,moneyS0)}</td>
+        <td>${x.bandaDominante!=null? `<b>${BANDAS[x.bandaDominante].label}</b> (${moneyS0(x.bandas[x.bandaDominante].sVar)})`:'—'}</td></tr>`).join('')}</tbody>
+    </table></div></div>
+  </section>`:''}`;
+  window.scrollTo(0,0);
+}
+
+/* ---------------- ROUTER ---------------- */
+function route(){
+  if(!S.zonas.length) return;
+  const h=(location.hash||'#panel').slice(1);
+  const pg = h.startsWith('det:')? 'det' : (['panel','tabla','diag','plan'].includes(h)? h : 'panel');
+  document.body.dataset.page=pg;
+  document.querySelectorAll('nav a[data-pg]').forEach(a=>a.classList.toggle('act', a.dataset.pg===pg));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
+  $('pg-'+pg).classList.add('act');
+  if(pg==='panel') renderPanel();
+  else if(pg==='tabla') renderTabla();
+  else if(pg==='diag') renderDiag();
+  else if(pg==='plan') renderPlan();
+  else renderDet(h.slice(4));
+}
+function rerender(){ route(); }
+
+/* ---------------- FECHAS / SELECTS ---------------- */
+function renderHead(){
+  const dias=(S.fecha1&&S.fecha2)? Math.round((S.fecha2-S.fecha1)/86400000):null;
+  $('headFechas').innerHTML=`<div class="rng">Comparativo</div><b>${fmtFecha(S.fecha1)}</b> → <b>${fmtFecha(S.fecha2)}</b>${dias?` <span style="color:var(--ink-3)">(${dias} días)</span>`:''}`;
+}
+function fillSelects(){
+  const sz=$('selZona');
+  sz.innerHTML=`<option value="TODAS">Zona: todas</option>`+S.zonas.map(z=>`<option value="${esc(z.nombre)}"${z.nombre===S.scope.zona?' selected':''}>${esc(z.nombre)}</option>`).join('');
+  const ofis=scopedZonas().flatMap(z=>z.oficinas);
+  const so=$('selOficina');
+  so.innerHTML=`<option value="TODAS">Oficina: todas</option>`+ofis.map(o=>`<option value="${esc(o.nombre)}"${o.nombre===S.scope.oficina?' selected':''}>${esc(o.nombre)}</option>`).join('');
+  const sa=$('selAsesor');
+  if(S.scope.oficina!=='TODAS'){
+    const ases=scopedOficinas().flatMap(o=>o.asesores);
+    sa.style.display='inline-block';
+    sa.innerHTML=`<option value="TODOS">Asesor: todos</option>`+ases.map(a=>`<option value="${esc(a.nombre)}"${a.nombre===S.scope.asesor?' selected':''}>${esc(nomPila(a.nombre))}</option>`).join('');
+  } else { sa.style.display='none'; S.scope.asesor='TODOS'; }
+}
+
+/* ---------------- EVENTOS ---------------- */
+function setupUI(){
+  renderLogo();
+  const dz=$('dropzone'), fi=$('fileInput');
+  dz.addEventListener('click',()=>fi.click());
+  ['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over');}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over');}));
+  dz.addEventListener('drop',e=>{ const f=e.dataTransfer.files[0]; if(f) loadFile(f); });
+  fi.addEventListener('change',e=>{ if(e.target.files[0]) loadFile(e.target.files[0]); });
+  document.body.addEventListener('dragover',e=>e.preventDefault());
+  document.body.addEventListener('drop',e=>{ e.preventDefault(); const f=e.dataTransfer.files[0]; if(f&&/\.xlsx?$/i.test(f.name)) loadFile(f); });
+
+  window.addEventListener('hashchange',route);
+  $('btnOtro').onclick=()=>fi.click();
+  $('selZona').onchange=e=>{ S.scope.zona=e.target.value; S.scope.oficina='TODAS'; S.scope.asesor='TODOS'; S.ui.drillBand=null; fillSelects(); rerender(); };
+  $('selOficina').onchange=e=>{ S.scope.oficina=e.target.value; S.scope.asesor='TODOS'; S.ui.drillBand=null; fillSelects(); rerender(); };
+  $('selAsesor').onchange=e=>{ S.scope.asesor=e.target.value; rerender(); };
+  $('btnExpandir').onclick=()=>{ S.exp.z=new Set(S.zonas.map(z=>z.id)); S.exp.o=new Set(S.allOficinas.map(o=>o.id)); rerender(); };
+  $('btnContraer').onclick=()=>{ S.exp.o.clear(); rerender(); };
+  $('btnDetalle').onclick=()=>{ S.ui.detalle=!S.ui.detalle; $('btnDetalle').classList.toggle('act',S.ui.detalle); rerender(); };
+  $('btnModo').onclick=()=>{ S.ui.modo=S.ui.modo==='bandas'?'cer':'bandas'; $('btnModo').textContent=S.ui.modo==='bandas'?'Ver CER acumulado':'Ver bandas exclusivas'; rerender(); };
+  $('selMetrica').onchange=e=>{ S.ui.metrica=e.target.value; rerender(); };
+  $('btnOrden').onclick=()=>{ S.ui.orden=S.ui.orden==='prioridad'?'original':'prioridad'; $('btnOrden').textContent='Orden: '+(S.ui.orden==='prioridad'?'Prioridad':'Original'); rerender(); };
+
+  document.body.addEventListener('click',e=>{
+    if(e.target.closest('a.ent')||e.target.closest('a[href^="#det:"]')) return; // dejar navegar
+    const cd=e.target.closest('[data-closedrill]');
+    if(cd){ S.ui.drillBand=null; renderPanel(); return; }
+    const bd=e.target.closest('[data-band]');
+    if(bd){ const bi=+bd.dataset.band; S.ui.drillBand = (S.ui.drillBand===bi? null : bi); renderPanel(); return; }
+    const act=e.target.closest('[data-imgact]');
+    if(act){
+      const el=document.getElementById(act.dataset.target); if(!el || typeof html2canvas==='undefined') return;
+      const nombre=(act.dataset.nombre||'captura').replace(/[^\wáéíóúñÁÉÍÓÚÑ -]/g,'').trim().replace(/\s+/g,'_');
+      const orig=act.innerHTML;
+      const ok=m=>{ act.innerHTML='✓'; act.title=m||''; setTimeout(()=>{ act.innerHTML=orig; },1600); };
+      const fail=()=>{ act.innerHTML='✕'; setTimeout(()=>{ act.innerHTML=orig; },1600); };
+      act.innerHTML='…';
+      const cvP=capturaEl(el);
+      if(act.dataset.imgact==='copy'){
+        const blobP=cvP.then(cv=>new Promise(r=>cv.toBlob(r,'image/png')));
+        navigator.clipboard.write([new ClipboardItem({'image/png':blobP})]).then(()=>ok('Imagen copiada')).catch(()=>{
+          // respaldo: descargar
+          cvP.then(cv=>{ const a=document.createElement('a'); a.download=nombre+'.png'; a.href=cv.toDataURL('image/png'); a.click(); ok('Descargada'); }).catch(fail);
+        });
+      } else if(act.dataset.imgact==='dl'){
+        cvP.then(cv=>{ const a=document.createElement('a'); a.download=nombre+'.png'; a.href=cv.toDataURL('image/png'); a.click(); ok('Descargada'); }).catch(fail);
+      } else { // share
+        cvP.then(cv=>new Promise(r=>cv.toBlob(r,'image/png'))).then(blob=>{
+          const file=new File([blob], nombre+'.png', {type:'image/png'});
+          if(navigator.canShare && navigator.canShare({files:[file]})) return navigator.share({files:[file], title:nombre}).then(()=>ok('Compartida'));
+          return navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).then(()=>ok('Copiada (compartir no disponible)'));
+        }).catch(err=>{ if(err && err.name==='AbortError'){ act.innerHTML=orig; return; } fail(); });
+      }
+      return; }
+    const tz=e.target.closest('[data-tgz]');
+    if(tz){ const id=tz.dataset.tgz; S.exp.z.has(id)? S.exp.z.delete(id):S.exp.z.add(id); rerender(); return; }
+    const to=e.target.closest('[data-tgo]');
+    if(to){ const id=to.dataset.tgo; S.exp.o.has(id)? S.exp.o.delete(id):S.exp.o.add(id); rerender(); return; }
+    const tab=e.target.closest('.tab');
+    if(tab){ S.ui.tab=tab.dataset.tab;
+      document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('act',x.dataset.tab===S.ui.tab));
+      $('cardsAsesores').classList.toggle('hidden',S.ui.tab!=='asesores');
+      $('cardsOficinas').classList.toggle('hidden',S.ui.tab!=='oficinas');
+      return; }
+  });
+}
+function loadFile(f){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
+      parseWorkbook(wb);
+      $('dropzone').classList.add('hidden');
+      $('app').classList.remove('hidden');
+      $('mainNav').style.display='flex';
+      $('toolbar').style.display='flex';
+      S.scope={zona:'TODAS', oficina:'TODAS', asesor:'TODOS'};
+      renderHead(); fillSelects();
+      if(!location.hash || location.hash==='#') location.hash='#panel'; else route();
+    }catch(err){ alert('No se pudo procesar el archivo:\n'+err.message); console.error(err); }
+  };
+  reader.readAsArrayBuffer(f);
+}
+setupUI();
+</script>
+</body></html>
