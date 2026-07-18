@@ -119,6 +119,18 @@ a.ent:hover{color:var(--rojo); border-bottom-color:var(--rojo);}
 .aviso svg.ic{width:17px; height:17px; flex:none;}
 .bars svg:not(.ic){display:block; width:100%; height:auto;}
 .bars text{font-family:inherit;}
+/* barra de composición de la mora */
+.dist-bar{display:flex; gap:2px; height:30px; margin:6px 0 14px;}
+.dist-seg{position:relative; border-radius:3px; min-width:3px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:#fff; overflow:hidden; white-space:nowrap;}
+.dist-seg:first-child{border-radius:7px 3px 3px 7px;}
+.dist-seg:last-child{border-radius:3px 7px 7px 3px;}
+.sw{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; flex:none;}
+table.dist{width:100%; border-collapse:collapse; font-size:11.5px;}
+table.dist th{background:#f8f8fa; color:var(--ink-2); padding:6px 8px; font-size:9.5px; text-transform:uppercase; letter-spacing:.4px; border-bottom:1px solid var(--hair); text-align:right; white-space:nowrap;}
+table.dist th:first-child{text-align:left;}
+table.dist td{padding:6px 8px; border-bottom:1px solid var(--hair-2); text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap;}
+table.dist td:first-child{text-align:left; font-weight:600;}
+table.dist tr:hover td{background:var(--rojo-tinte);}
 .bars g[data-band]{cursor:pointer;}
 .bars g[data-band]:hover rect[fill="transparent"]{fill:rgba(227,39,29,.05);}
 .drill-box{margin-top:12px; border-top:1px solid var(--hair); padding-top:10px;}
@@ -647,6 +659,37 @@ function rankDivergingSVG(items, opts={}){
   </svg>`;
 }
 
+/* ---------------- DISTRIBUCIÓN DE LA MORA POR BANDA (al corte) ---------------- */
+const RAMPA_BANDAS = ['#f2b8b2','#e9948c','#dc6f66','#c94b43','#ab2d26','#7f1712']; // rojo claro → oscuro (1–15 → >120)
+function luminOscura(hex){ const n=parseInt(hex.slice(1),16); const r=n>>16, g=(n>>8)&255, b=n&255; return (0.299*r+0.587*g+0.114*b) < 150; }
+function distribucionHTML(e){
+  const tot=e.cums[0];
+  if(!tot.s2) return '';
+  const rows=e.bandas.map((b,i)=>({ ...b, i, pctMora: b.s2/tot.s2, pctCart: e.saldoCartera? b.s2/e.saldoCartera:0 }));
+  const segs=rows.map(r=>{
+    const wpct=(r.pctMora*100);
+    const col=RAMPA_BANDAS[r.i];
+    const tt=JSON.stringify([{v:r.label+' — al '+fmtFecha(S.fecha2)},{k:'Saldo',v:money(r.s2)},{k:'Créditos',v:int0(r.n2)},{k:'% de la mora CER>1',v:pct(r.pctMora)},{k:'% de la cartera',v:pct(r.pctCart)},{k:'Δ del período',v:moneyS(r.sVar)+' / '+intS(r.nVar)+' créd.'}]);
+    const lbl = wpct>=8? `<span style="color:${luminOscura(col)?'#fff':'#4a1512'}">${pct(r.pctMora,0)}</span>`:'';
+    return `<div class="dist-seg" data-tt='${tt.replace(/'/g,"&#39;")}' style="width:${Math.max(wpct,0.6)}%; background:${col}">${lbl}</div>`;
+  }).join('');
+  const tr=rows.map(r=>`<tr>
+    <td><span class="sw" style="background:${RAMPA_BANDAS[r.i]}"></span>${r.label}<span class="sub" style="display:inline; margin-left:6px">${r.desc}</span></td>
+    <td>${int0(r.n2)}</td><td><b>${money(r.s2)}</b></td>
+    <td>${pct(r.pctMora)}</td><td>${pct(r.pctCart)}</td>
+    <td class="${varClass(r.sVar)}">${moneyS(r.sVar)}</td>
+    <td>${r.sVar>0? '<span class="chip up">▲ crece</span>': r.sVar<0? '<span class="chip down">▼ se recupera</span>':'<span class="chip flat">estable</span>'}</td></tr>`).join('');
+  return `<div class="viz" id="vizDist">
+    <div class="viz-head"><span class="vt"><h3>¿Cómo está distribuida la mora hoy? — composición por banda al ${fmtFecha(S.fecha2)}</h3>
+      <div class="viz-sub">La mora total CER&gt;1 es <b>${money(tot.s2)}</b> (${int0(tot.n2)} créditos, ${pct(e.cer1pct)} de la cartera). La barra muestra qué parte está en cada tramo de días; pase el cursor para el detalle.</div></span>
+      ${imgBtns('vizDist','Distribucion de la mora por banda')}</div>
+    <div class="dist-bar">${segs}</div>
+    <table class="dist"><thead><tr><th>Banda</th><th>Créditos</th><th>Saldo al corte</th><th>% de la mora</th><th>% de cartera</th><th>Δ período</th><th>Tendencia</th></tr></thead>
+    <tbody>${tr}</tbody>
+    <tfoot><tr style="font-weight:700; background:#fbfbfc"><td>TOTAL CER &gt;1</td><td>${int0(tot.n2)}</td><td>${money(tot.s2)}</td><td>100%</td><td>${pct(e.cer1pct)}</td><td class="${varClass(tot.sVar)}">${moneyS(tot.sVar)}</td><td></td></tr></tfoot></table>
+  </div>`;
+}
+
 /* ---------------- PÁGINA: PANEL EJECUTIVO ---------------- */
 function renderPanel(){
   const agg=scopeAgg(), c1=agg.cums[0], c30=agg.cums[2];
@@ -673,6 +716,7 @@ function renderPanel(){
       <div class="kpi"><div class="lbl">${icon('users')}Créditos en mora</div><div class="val">${int0(c1.n2)}</div><div class="delta">${chipVar(c1.nVar,intS)} <span>créditos</span></div></div>
       <div class="kpi"><div class="lbl">${icon('up')}Mora temprana Δ (1–30 d)</div><div class="val" style="color:${agg.earlyS>0?'var(--critico)':'var(--bueno)'}">${moneyS0(agg.earlyS)}</div><div class="delta">${chipVar(agg.earlyN,intS)} <span>créditos rodando</span></div></div>
     </div>
+    <div class="viz-row" style="grid-template-columns:1fr">${distribucionHTML(agg)}</div>
     <div class="viz-row" style="grid-template-columns:repeat(auto-fit,minmax(440px,1fr))">
       <div class="viz bars" id="vizBandas"><div class="viz-head"><span class="vt"><h3>¿Dónde crece la mora? — variación por banda</h3>
         <div class="viz-sub">Δ saldo entre fechas · rojo crece, verde se recupera · <b>clic en una banda</b> para desplegar por ${dl.lbl}</div></span>${imgBtns('vizBandas','Donde crece la mora')}</div>
