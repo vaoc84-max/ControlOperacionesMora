@@ -120,8 +120,8 @@ a.ent:hover{color:var(--rojo); border-bottom-color:var(--rojo);}
 .bars svg:not(.ic){display:block; width:100%; height:auto;}
 .bars text{font-family:inherit;}
 /* barra de composición de la mora */
-.dist-bar{display:flex; gap:2px; height:30px; margin:6px 0 14px;}
-.dist-seg{position:relative; border-radius:3px; min-width:3px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:#fff; overflow:hidden; white-space:nowrap;}
+.dist-bar{display:flex; gap:2px; height:40px; margin:6px 0 14px;}
+.dist-seg{position:relative; border-radius:3px; min-width:3px; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.2; font-size:10.5px; font-weight:700; color:#fff; overflow:hidden; white-space:nowrap;}
 .dist-seg:first-child{border-radius:7px 3px 3px 7px;}
 .dist-seg:last-child{border-radius:3px 7px 7px 3px;}
 .sw{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; flex:none;}
@@ -633,7 +633,10 @@ function rankDivergingSVG(items, opts={}){
   const vName = opts.valName || 'Δ CER>1 (saldo)';
   const data=[...items].sort((a,b)=>getV(b)-getV(a));
   const maxAbs=Math.max(...data.map(d=>Math.abs(getV(d))),1);
-  const W=580, labW=156, valW=84, plotW=W-labW-valW, rowH=29, barH=16, H=data.length*rowH+14;
+  // ancho de etiquetas según el nombre más largo (sin truncar)
+  const maxChars=Math.max(...data.map(d=>String(d.nombre).trim().length), 8);
+  const labW=Math.min(340, Math.max(130, Math.round(maxChars*7.2)+20));
+  const valW=84, W=labW+valW+330, plotW=W-labW-valW, rowH=29, barH=16, H=data.length*rowH+14;
   const x0=labW+plotW/2, scale=(plotW/2-6)/maxAbs;
   let g='';
   data.forEach((d,i)=>{
@@ -646,7 +649,7 @@ function rankDivergingSVG(items, opts={}){
     g+=`<g data-tt='${tt.replace(/'/g,"&#39;")}'>
       <rect x="0" y="${y-5}" width="${W}" height="${rowH-2}" fill="transparent"/>
       ${w>1? `<path d="${rx}" fill="${col}"/>` : `<rect x="${x0-1}" y="${y}" width="2" height="${barH}" fill="${col}"/>`}
-      <a href="#det:${d.id}"><text x="${labW-8}" y="${y+barH/2+3.5}" text-anchor="end" font-size="${fs}" font-weight="600" fill="#5b5c61" style="cursor:pointer">${esc(String(d.nombre).length>24? String(d.nombre).slice(0,23)+'…':d.nombre)}</text></a>
+      <a href="#det:${d.id}"><text x="${labW-8}" y="${y+barH/2+3.5}" text-anchor="end" font-size="${fs}" font-weight="600" fill="#5b5c61" style="cursor:pointer">${esc(String(d.nombre).trim())}</text></a>
       ${(()=>{ const fits = v>=0 || (x0-w-8) > labW+48;
         const tx = v>=0? x0+w+6 : (fits? x0-w-6 : x0+8);
         const ta = v>=0? 'start' : (fits? 'end':'start');
@@ -661,6 +664,21 @@ function rankDivergingSVG(items, opts={}){
 
 /* ---------------- DISTRIBUCIÓN DE LA MORA POR BANDA (al corte) ---------------- */
 const RAMPA_BANDAS = ['#f2b8b2','#e9948c','#dc6f66','#c94b43','#ab2d26','#7f1712']; // rojo claro → oscuro (1–15 → >120)
+/* Calificación de riesgo (Resultados de Cartera y Provisiones) por rango de días de mora */
+const CALIF_BANDAS = [
+  { cal:'A-2',        nivel:'Riesgo Normal'    },   // 1–15 días
+  { cal:'A-3',        nivel:'Riesgo Normal'    },   // 16–30 días
+  { cal:'B-1 / B-2',  nivel:'Riesgo Potencial' },   // 31–45 / 46–60 días
+  { cal:'C-1 / C-2',  nivel:'Deficiente'       },   // 61–75 / 76–90 días
+  { cal:'D',          nivel:'Dudoso Recaudo'   },   // 91–120 días
+  { cal:'E',          nivel:'Pérdida'          },   // 121+ días
+];
+const moneyK = v => {
+  const a=Math.abs(v||0);
+  if(a>=1e6) return '$'+(v/1e6).toFixed(1).replace('.',',')+'M';
+  if(a>=1e3) return '$'+Math.round(v/1e3)+'k';
+  return '$'+Math.round(v||0);
+};
 function luminOscura(hex){ const n=parseInt(hex.slice(1),16); const r=n>>16, g=(n>>8)&255, b=n&255; return (0.299*r+0.587*g+0.114*b) < 150; }
 function distribucionHTML(e){
   const tot=e.cums[0];
@@ -668,25 +686,31 @@ function distribucionHTML(e){
   const rows=e.bandas.map((b,i)=>({ ...b, i, pctMora: b.s2/tot.s2, pctCart: e.saldoCartera? b.s2/e.saldoCartera:0 }));
   const segs=rows.map(r=>{
     const wpct=(r.pctMora*100);
-    const col=RAMPA_BANDAS[r.i];
-    const tt=JSON.stringify([{v:r.label+' — al '+fmtFecha(S.fecha2)},{k:'Saldo',v:money(r.s2)},{k:'Créditos',v:int0(r.n2)},{k:'% de la mora CER>1',v:pct(r.pctMora)},{k:'% de la cartera',v:pct(r.pctCart)},{k:'Δ del período',v:moneyS(r.sVar)+' / '+intS(r.nVar)+' créd.'}]);
-    const lbl = wpct>=8? `<span style="color:${luminOscura(col)?'#fff':'#4a1512'}">${pct(r.pctMora,0)}</span>`:'';
+    const col=RAMPA_BANDAS[r.i], cf=CALIF_BANDAS[r.i];
+    const tt=JSON.stringify([{v:r.label+' — al '+fmtFecha(S.fecha2)},{k:'Calificación',v:cf.cal+' · '+cf.nivel},{k:'Saldo',v:money(r.s2)},{k:'Créditos',v:int0(r.n2)},{k:'% de la mora CER>1',v:pct(r.pctMora)},{k:'% de la cartera',v:pct(r.pctCart)},{k:'Δ del período',v:moneyS(r.sVar)+' / '+intS(r.nVar)+' créd.'}]);
+    const ink = luminOscura(col)?'#fff':'#4a1512';
+    const lbl = wpct>=8? `<span style="color:${ink}">${pct(r.pctMora,0)}</span><span style="color:${ink}; font-weight:600; font-size:9.5px; opacity:.92">${moneyK(r.s2)}</span>`
+              : wpct>=4? `<span style="color:${ink}; font-size:9.5px">${moneyK(r.s2)}</span>`:'';
     return `<div class="dist-seg" data-tt='${tt.replace(/'/g,"&#39;")}' style="width:${Math.max(wpct,0.6)}%; background:${col}">${lbl}</div>`;
   }).join('');
-  const tr=rows.map(r=>`<tr>
+  const tr=rows.map(r=>{
+    const cf=CALIF_BANDAS[r.i];
+    return `<tr>
     <td><span class="sw" style="background:${RAMPA_BANDAS[r.i]}"></span>${r.label}<span class="sub" style="display:inline; margin-left:6px">${r.desc}</span></td>
+    <td style="text-align:left"><b>${cf.cal}</b><span class="sub" style="display:inline; margin-left:6px">${cf.nivel}</span></td>
     <td>${int0(r.n2)}</td><td><b>${money(r.s2)}</b></td>
     <td>${pct(r.pctMora)}</td><td>${pct(r.pctCart)}</td>
     <td class="${varClass(r.sVar)}">${moneyS(r.sVar)}</td>
-    <td>${r.sVar>0? '<span class="chip up">▲ crece</span>': r.sVar<0? '<span class="chip down">▼ se recupera</span>':'<span class="chip flat">estable</span>'}</td></tr>`).join('');
+    <td>${r.sVar>0? '<span class="chip up">▲ crece</span>': r.sVar<0? '<span class="chip down">▼ se recupera</span>':'<span class="chip flat">estable</span>'}</td></tr>`;
+  }).join('');
   return `<div class="viz" id="vizDist">
     <div class="viz-head"><span class="vt"><h3>¿Cómo está distribuida la mora hoy? — composición por banda al ${fmtFecha(S.fecha2)}</h3>
       <div class="viz-sub">La mora total CER&gt;1 es <b>${money(tot.s2)}</b> (${int0(tot.n2)} créditos, ${pct(e.cer1pct)} de la cartera). La barra muestra qué parte está en cada tramo de días; pase el cursor para el detalle.</div></span>
       ${imgBtns('vizDist','Distribucion de la mora por banda')}</div>
     <div class="dist-bar">${segs}</div>
-    <table class="dist"><thead><tr><th>Banda</th><th>Créditos</th><th>Saldo al corte</th><th>% de la mora</th><th>% de cartera</th><th>Δ período</th><th>Tendencia</th></tr></thead>
+    <table class="dist"><thead><tr><th>Banda</th><th style="text-align:left">Calificación de riesgo</th><th>Créditos</th><th>Saldo al corte</th><th>% de la mora</th><th>% de cartera</th><th>Δ período</th><th>Tendencia</th></tr></thead>
     <tbody>${tr}</tbody>
-    <tfoot><tr style="font-weight:700; background:#fbfbfc"><td>TOTAL CER &gt;1</td><td>${int0(tot.n2)}</td><td>${money(tot.s2)}</td><td>100%</td><td>${pct(e.cer1pct)}</td><td class="${varClass(tot.sVar)}">${moneyS(tot.sVar)}</td><td></td></tr></tfoot></table>
+    <tfoot><tr style="font-weight:700; background:#fbfbfc"><td>TOTAL CER &gt;1</td><td></td><td>${int0(tot.n2)}</td><td>${money(tot.s2)}</td><td>100%</td><td>${pct(e.cer1pct)}</td><td class="${varClass(tot.sVar)}">${moneyS(tot.sVar)}</td><td></td></tr></tfoot></table>
   </div>`;
 }
 
