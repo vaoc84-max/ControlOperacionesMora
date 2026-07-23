@@ -139,6 +139,34 @@ table.dist tr:hover td{background:var(--rojo-tinte);}
 .drill-box .drill-head button{border:1px solid var(--hair); background:var(--surface); border-radius:5px; font-size:10.5px; cursor:pointer; padding:2px 8px; color:var(--ink-2);}
 tr.meta-ok td{background:var(--bueno-bg) !important;}
 tr.meta-obj td{background:var(--rojo-tinte);}
+/* hoja de ruta */
+.hr-sel{display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:12px 18px; border-bottom:1px solid var(--hair);}
+.hr-sel select{border:1px solid var(--hair); background:var(--surface); color:var(--ink); padding:7px 10px; border-radius:6px; font-size:12.5px; font-weight:600; cursor:pointer; min-width:200px;}
+.hr-sel .lb{font-size:11px; font-weight:700; color:var(--ink-3); text-transform:uppercase; letter-spacing:.6px;}
+.pill.p1{background:var(--rojo); color:#fff;}
+.pill.p2{background:#e8930c; color:#fff;}
+.pill.p3{background:#7f1712; color:#fff;}
+.pill.p4{background:#c9cacf; color:#3a3b40;}
+tr.barrio-row td{background:#f4f0ee; font-weight:700; color:#6b3a35; border-top:1px solid var(--hair);}
+td.chk{font-size:15px; color:#b9bac0; text-align:center;}
+.mini-drop{margin:26px auto; max-width:640px; border:2px dashed #cfd0d8; border-radius:14px; background:var(--surface); padding:40px 36px; text-align:center; color:var(--ink-2); cursor:pointer;}
+.mini-drop:hover{border-color:var(--rojo); background:var(--rojo-tinte);}
+.mini-drop b{color:var(--ink);}
+/* tipografía ampliada en Plan de gestión */
+#pg-plan .plan-of table{font-size:13.5px;}
+#pg-plan .plan-of th{font-size:11px; padding:8px 10px;}
+#pg-plan .plan-of td{padding:9px 10px;}
+#pg-plan .plan-of-head{font-size:14.5px; padding:11px 14px;}
+#pg-plan .plan-of-head .foco{font-size:13px;}
+#pg-plan .sub{font-size:11.5px;}
+#pg-plan .banner{font-size:13.5px;}
+#pg-plan .chip{font-size:11.5px;}
+#pg-plan .ord{width:24px; height:24px; line-height:24px; font-size:12px;}
+/* ordenamiento por encabezado */
+table.sortable thead th{cursor:pointer; user-select:none;}
+table.sortable thead th:hover{background:#efeff3; color:var(--ink);}
+table.sortable thead th[data-sdir="asc"]::after{content:" ▲"; font-size:8.5px; color:var(--rojo);}
+table.sortable thead th[data-sdir="desc"]::after{content:" ▼"; font-size:8.5px; color:var(--rojo);}
 #tooltip{position:fixed; z-index:200; pointer-events:none; background:#26272b; color:#fff; border-radius:7px; padding:8px 11px; font-size:11.5px; line-height:1.55; box-shadow:0 6px 20px rgba(0,0,0,.25); opacity:0; transition:opacity .1s; max-width:280px;}
 #tooltip .tt-t{font-weight:700; font-size:12px;}
 #tooltip .tt-k{color:#b9bac0;}
@@ -261,6 +289,8 @@ footer{padding:16px 26px; color:var(--ink-3); font-size:11px; text-align:center;
 <symbol id="i-collapse" viewBox="0 0 24 24"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></symbol>
 <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
 <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></symbol>
+<symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
 <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></symbol>
 <symbol id="i-dl" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></symbol>
 </defs></svg>
@@ -281,6 +311,7 @@ footer{padding:16px 26px; color:var(--ink-3); font-size:11px; text-align:center;
   <a href="#tabla" data-pg="tabla"><svg class="ic"><use href="#i-table"/></svg>Comparativo</a>
   <a href="#diag" data-pg="diag"><svg class="ic"><use href="#i-diag"/></svg>Diagnóstico</a>
   <a href="#plan" data-pg="plan"><svg class="ic"><use href="#i-plan"/></svg>Plan de gestión</a>
+  <a href="#ruta" data-pg="ruta"><svg class="ic"><use href="#i-map"/></svg>Hoja de ruta</a>
   <div class="nav-right">
     <button class="btn" onclick="window.print()"><svg class="ic"><use href="#i-print"/></svg>Imprimir</button>
     <button class="btn" id="btnOtro"><svg class="ic"><use href="#i-upload"/></svg>Cargar otro archivo</button>
@@ -318,6 +349,7 @@ footer{padding:16px 26px; color:var(--ink-3); font-size:11px; text-align:center;
   <div class="page" id="pg-tabla"></div>
   <div class="page" id="pg-diag"></div>
   <div class="page" id="pg-plan"></div>
+  <div class="page" id="pg-ruta"></div>
   <div class="page" id="pg-det"></div>
 </main>
 
@@ -373,7 +405,8 @@ const S = {
   reg:new Map(), allAsesores:[], allOficinas:[],
   exp:{ z:new Set(), o:new Set() },
   scope:{ zona:'TODAS', oficina:'TODAS', asesor:'TODOS' },
-  ui:{ detalle:false, modo:'bandas', metrica:'saldo', orden:'prioridad', tab:'asesores', drillBand:null }
+  ui:{ detalle:false, modo:'bandas', metrica:'saldo', orden:'prioridad', tab:'asesores', drillBand:null, hrVista:'territorio', detBanda:null, detBandaFor:null },
+  det:null, rutaSel:{ag:'', as:''}
 };
 const CUM_LABELS = ['CER >1','CER >15','CER >30','CER >60','CER >90','CER >120'];
 const CUM_DAYS = [1,15,30,60,90,120];
@@ -526,15 +559,15 @@ function computeAll(){
 /* ---------------- ÁMBITO (scope) y visibilidad ---------------- */
 function scopedZonas(){ return S.zonas.filter(z=>S.scope.zona==='TODAS'||z.nombre===S.scope.zona); }
 function scopedOficinas(){ return scopedZonas().flatMap(z=>z.oficinas).filter(o=>S.scope.oficina==='TODAS'||o.nombre===S.scope.oficina); }
-function scopedAsesores(){ return scopedOficinas().flatMap(o=>o.asesores); }
+function scopedAsesores(){ return scopedOficinas().flatMap(o=>o.asesores).filter(a=>!S.scope.asesor||S.scope.asesor==='TODOS'||a.nombre===S.scope.asesor); }
 function visibleOficinas(){ return scopedOficinas().filter(o=>S.exp.z.has(o.zonaId)); }
 function visibleAsesores(){ return visibleOficinas().filter(o=>S.exp.o.has(o.id)).flatMap(o=>o.asesores); }
 function scopeAgg(){
-  const os=scopedOficinas();
-  if(S.scope.zona==='TODAS' && S.scope.oficina==='TODAS') return S.total;
-  const agg=sumEntities(os.flatMap(o=>o.asesores)); deriveEntity(agg); return agg;
+  if(S.scope.zona==='TODAS' && S.scope.oficina==='TODAS' && (!S.scope.asesor||S.scope.asesor==='TODOS')) return S.total;
+  const agg=sumEntities(scopedAsesores()); deriveEntity(agg); return agg;
 }
 function scopeLabel(){
+  if(S.scope.asesor && S.scope.asesor!=='TODOS') return S.scope.oficina+' · '+S.scope.asesor;
   if(S.scope.oficina!=='TODAS') return S.scope.oficina;
   if(S.scope.zona!=='TODAS') return S.scope.zona;
   return 'FACES (todas las zonas)';
@@ -623,8 +656,7 @@ function bandDivergingSVG(e, opts={}){
 /* ---------------- Nivel de despliegue según filtro ---------------- */
 function drillLevel(){
   if(S.scope.oficina!=='TODAS') return { items:scopedAsesores(), lbl:'asesor', pl:'asesores' };
-  if(S.scope.zona!=='TODAS')    return { items:scopedOficinas(), lbl:'oficina', pl:'oficinas' };
-  return { items:S.zonas, lbl:'zona', pl:'zonas' };
+  return { items:scopedOficinas(), lbl:'oficina', pl:'oficinas' }; // con todas las zonas o una zona: siempre por oficina
 }
 
 /* ---------------- GRÁFICO: ranking de entidades (genérico, divergente) ---------------- */
@@ -693,22 +725,36 @@ function distribucionHTML(e){
               : wpct>=4? `<span style="color:${ink}; font-size:9.5px">${moneyK(r.s2)}</span>`:'';
     return `<div class="dist-seg" data-tt='${tt.replace(/'/g,"&#39;")}' style="width:${Math.max(wpct,0.6)}%; background:${col}">${lbl}</div>`;
   }).join('');
+  const dl=drillLevel();
+  const conHijos = dl.items && dl.items.length>1;
   const tr=rows.map(r=>{
     const cf=CALIF_BANDAS[r.i];
-    return `<tr>
-    <td><span class="sw" style="background:${RAMPA_BANDAS[r.i]}"></span>${r.label}<span class="sub" style="display:inline; margin-left:6px">${r.desc}</span></td>
+    let h=`<tr ${conHijos? `style="cursor:pointer" data-disttoggle="${r.i}"`:''}>
+    <td>${conHijos? `<span class="tw"><span class="tg" id="dtg${r.i}"><svg class="ic"><use href="#i-chev"/></svg></span><span class="sw" style="background:${RAMPA_BANDAS[r.i]}"></span><b>${r.label}</b></span><span class="sub" style="display:inline; margin-left:6px">${r.desc} · clic: ${dl.pl}</span>` : `<span class="sw" style="background:${RAMPA_BANDAS[r.i]}"></span>${r.label}<span class="sub" style="display:inline; margin-left:6px">${r.desc}</span>`}</td>
     <td style="text-align:left"><b>${cf.cal}</b><span class="sub" style="display:inline; margin-left:6px">${cf.nivel}</span></td>
     <td>${int0(r.n2)}</td><td><b>${money(r.s2)}</b></td>
     <td>${pct(r.pctMora)}</td><td>${pct(r.pctCart)}</td>
     <td class="${varClass(r.sVar)}">${moneyS(r.sVar)}</td>
     <td>${r.sVar>0? '<span class="chip up">▲ crece</span>': r.sVar<0? '<span class="chip down">▼ se recupera</span>':'<span class="chip flat">estable</span>'}</td></tr>`;
+    if(conHijos){
+      const kids=[...dl.items].filter(k=>k.bandas[r.i].s2>0 || k.bandas[r.i].s1>0).sort((a,c)=>c.bandas[r.i].s2-a.bandas[r.i].s2);
+      h+=kids.map(k=>{ const kb=k.bandas[r.i];
+        return `<tr class="hidden" data-distgrp="${r.i}" style="background:#fbfbfc">
+        <td style="padding-left:34px">${linkEnt(k)}<span class="sub" style="display:inline; margin-left:6px">${k.tipo==='asesor'? esc(k.oficina): esc(k.zona||'')}</span></td>
+        <td></td>
+        <td>${int0(kb.n2)}</td><td>${money(kb.s2)}</td>
+        <td>${pct(r.s2? kb.s2/r.s2:0)}</td><td>${pct(k.saldoCartera? kb.s2/k.saldoCartera:0)}</td>
+        <td class="${varClass(kb.sVar)}">${moneyS(kb.sVar)}</td>
+        <td>${kb.sVar>0? '<span class="chip up">▲ crece</span>': kb.sVar<0? '<span class="chip down">▼ se recupera</span>':'<span class="chip flat">estable</span>'}</td></tr>`; }).join('');
+    }
+    return h;
   }).join('');
   return `<div class="viz" id="vizDist">
     <div class="viz-head"><span class="vt"><h3>¿Cómo está distribuida la mora hoy? — composición por banda al ${fmtFecha(S.fecha2)}</h3>
       <div class="viz-sub">La mora total CER&gt;1 es <b>${money(tot.s2)}</b> (${int0(tot.n2)} créditos, ${pct(e.cer1pct)} de la cartera). La barra muestra qué parte está en cada tramo de días; pase el cursor para el detalle.</div></span>
       ${imgBtns('vizDist','Distribucion de la mora por banda')}</div>
     <div class="dist-bar">${segs}</div>
-    <table class="dist"><thead><tr><th>Banda</th><th style="text-align:left">Calificación de riesgo</th><th>Créditos</th><th>Saldo al corte</th><th>% de la mora</th><th>% de cartera</th><th>Δ período</th><th>Tendencia</th></tr></thead>
+    <table class="dist sortable"><thead><tr><th>Banda</th><th style="text-align:left">Calificación de riesgo</th><th>Créditos</th><th>Saldo al corte</th><th>% de la mora</th><th>% de cartera</th><th>Δ período</th><th>Tendencia</th></tr></thead>
     <tbody>${tr}</tbody>
     <tfoot><tr style="font-weight:700; background:#fbfbfc"><td>TOTAL CER &gt;1</td><td></td><td>${int0(tot.n2)}</td><td>${money(tot.s2)}</td><td>100%</td><td>${pct(e.cer1pct)}</td><td class="${varClass(tot.sVar)}">${moneyS(tot.sVar)}</td><td></td></tr></tfoot></table>
   </div>`;
@@ -910,7 +956,7 @@ function card(titulo, ic, filas, cols, vacio){
   let html=`<div class="card" id="${id}"><div class="card-head">${icon(ic)}<h3>${titulo}</h3>${imgBtns(id, titulo)}</div>`;
   if(!filas.length) html+=`<div class="ok-empty">${vacio||'Sin registros para esta condición.'}</div>`;
   else{
-    html+=`<table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
+    html+=`<table class="sortable"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>`;
     filas.forEach(f=>{ html+=`<tr>${f.map(c=>`<td>${c}</td>`).join('')}</tr>`; });
     html+='</tbody></table>';
   }
@@ -1053,14 +1099,30 @@ function renderDet(id){
   if(e.tipo==='asesor') crumb.push(`<a href="#det:${e.ofId}">${esc(e.oficina)}</a>`);
   crumb.push(`<b>${esc(e.nombre)}</b>`);
   const hijos = e.tipo==='zona'? e.oficinas : e.tipo==='oficina'? e.asesores : null;
+  const bandaFoco = (S.ui.detBandaFor===e.id && S.ui.detBanda!=null)? S.ui.detBanda : e.bandaDominante;
   const bandasTbl = e.bandas.map((b,i)=>{
     const rel=e.saldoCartera? b.sVar/e.saldoCartera:0;
-    return `<tr><td>${b.label}<span class="sub">${b.desc}</span></td>
+    const desplegable = hijos && hijos.length;
+    const selBanda = e.tipo==='asesor' && S.det && clientesDeAsesor(e.nombre);
+    const activa = selBanda && bandaFoco===i;
+    let h=`<tr ${desplegable? `style="cursor:pointer" data-bandtoggle="${i}"`:''} ${selBanda? `style="cursor:pointer; ${activa?'background:var(--rojo-tinte); box-shadow:inset 3px 0 0 var(--rojo);':''}" data-bandsel="${i}"`:''}>
+      <td>${desplegable? `<span class="tw"><span class="tg" id="btgd${i}"><svg class="ic"><use href="#i-chev"/></svg></span><b>${b.label}</b></span><span class="sub" style="margin-left:22px">${b.desc} · clic: ${e.tipo==='zona'?'oficinas':'asesores'}</span>` : `${activa?'▸ ':''}${selBanda? `<b>${b.label}</b>`:b.label}<span class="sub">${b.desc}${selBanda? ' · clic: enfocar clientes abajo':''}</span>`}</td>
       <td>${int0(b.n1)}</td><td>${int0(b.n2)}</td><td class="${varClass(b.nVar)}">${intS(b.nVar)}</td>
       <td>${money(b.s1)}</td><td>${money(b.s2)}</td>
       <td class="${varClass(b.sVar)} ${heatClass(rel)}">${moneyS(b.sVar)}</td>
       <td class="${varClass(b.sVar)}">${pctS(b.sPct)}</td></tr>`;
-  }).join('') + `<tr style="font-weight:700; background:#fbfbfc"><td>TOTAL CER &gt;1</td>
+    if(desplegable){
+      const kids=[...hijos].sort((a,c)=>c.bandas[i].sVar-a.bandas[i].sVar);
+      h+=kids.map(k=>{ const kb=k.bandas[i];
+        return `<tr class="hidden" data-bandgrp="${i}" style="background:#fbfbfc">
+        <td style="padding-left:34px">${linkEnt(k)}</td>
+        <td>${int0(kb.n1)}</td><td>${int0(kb.n2)}</td><td class="${varClass(kb.nVar)}">${intS(kb.nVar)}</td>
+        <td>${money(kb.s1)}</td><td>${money(kb.s2)}</td>
+        <td class="${varClass(kb.sVar)}">${moneyS(kb.sVar)}</td>
+        <td class="${varClass(kb.sVar)}">${pctS(kb.sPct)}</td></tr>`; }).join('');
+    }
+    return h;
+  }).join('') + `<tr data-nosort="1" style="font-weight:700; background:#fbfbfc"><td>TOTAL CER &gt;1</td>
       <td>${int0(c1.n1)}</td><td>${int0(c1.n2)}</td><td class="${varClass(c1.nVar)}">${intS(c1.nVar)}</td>
       <td>${money(c1.s1)}</td><td>${money(c1.s2)}</td><td class="${varClass(c1.sVar)}">${moneyS(c1.sVar)}</td><td class="${varClass(c1.sVar)}">${pctS(c1.sPct)}</td></tr>`;
 
@@ -1085,14 +1147,79 @@ function renderDet(id){
   </section>
   <section class="panel" id="detBandas">
     <div class="panel-head">${icon('table')}<h2>Comparativo por banda</h2><span class="hint">${fmtFecha(S.fecha1)} → ${fmtFecha(S.fecha2)}</span>${imgBtns('detBandas','Comparativo '+String(e.nombre))}</div>
-    <div class="tbl-wrap" style="padding:0 18px 16px"><table class="det"><thead><tr>
+    <div class="tbl-wrap" style="padding:0 18px 16px"><table class="det sortable"><thead><tr>
       <th>Banda</th><th>N° ${fmtFecha(S.fecha1)}</th><th>N° ${fmtFecha(S.fecha2)}</th><th>Δ N°</th>
       <th>Saldo ${fmtFecha(S.fecha1)}</th><th>Saldo ${fmtFecha(S.fecha2)}</th><th>Δ Saldo</th><th>Δ %</th></tr></thead>
       <tbody>${bandasTbl}</tbody></table></div>
   </section>
+  ${(()=>{ /* clientes que alteran el resultado (requiere el reporte detalle) */
+    if(e.tipo!=='asesor' || !S.det) return '';
+    const cd=clientesDeAsesor(e.nombre);
+    if(!cd) return '';
+    const gest=cd.list.filter(x=>!x.judicial);
+    const bi=bandaFoco;
+    const manual = S.ui.detBandaFor===e.id && S.ui.detBanda!=null;
+    const foco = bi!=null? gest.filter(x=>enBanda(x.dias,bi)) : [];
+    const base = foco.length? foco : gest;
+    const compV = x=> x.fComp && S.det.fecha && x.fComp<S.det.fecha;
+    // agrupar por ruta, de la más prioritaria (mayor vencido en la banda foco) a la menor
+    const porRuta=new Map();
+    base.forEach(x=>{ if(!porRuta.has(x.ruta)) porRuta.set(x.ruta,[]); porRuta.get(x.ruta).push(x); });
+    const rutasG=[...porRuta.entries()].map(([ruta,its])=>({ruta,
+      its:[...its].sort((a,b)=> (compV(b)-compV(a)) || (b.saldo-a.saldo)),
+      vt:sumVt(its), sal:sumSal(its), nComp:its.filter(compV).length}))
+      .sort((a,b)=>b.sal-a.sal);
+    const explic = bi!=null && foco.length
+      ? `${manual? `Enfocado en <b>${BANDAS[bi].label}</b> (${moneyS0(e.bandas[bi].sVar)} en el período, seleccionada en el comparativo de arriba).` : `Su deterioro viene de <b>${BANDAS[bi].label}</b> (${moneyS0(e.bandas[bi].sVar)} en el período).`} Los <b>${int0(foco.length)} clientes con mora de ${BAND_LIMS[bi][0]}–${BAND_LIMS[bi][1]===Infinity?'+':BAND_LIMS[bi][1]} días</b> que alteran ese resultado, agrupados por ruta de la más prioritaria a la menor — <b>clic en una ruta para desplegar sus clientes</b> (compromisos vencidos primero):`
+      : (bi!=null? `<b>${BANDAS[bi].label}</b>: sin clientes gestionables en ese tramo al ${fmtFecha(S.det.fecha)}. Se muestran todos los gestionables:` : `Clientes gestionables agrupados por ruta, de la más prioritaria a la menor — <b>clic en una ruta para desplegar</b>:`);
+    const filasR = rutasG.map((rg,ri)=>{
+      // barrios de la ruta priorizados por gravedad (saldo)
+      const porBarrioG=new Map();
+      rg.its.forEach(x=>{ if(!porBarrioG.has(x.barrio)) porBarrioG.set(x.barrio,[]); porBarrioG.get(x.barrio).push(x); });
+      const barriosG=[...porBarrioG.entries()].map(([b,its])=>({b, its:[...its].sort((a,c)=> (compV(c)-compV(a)) || (c.saldo-a.saldo)),
+        sal:sumSal(its), vt:sumVt(its), nComp:its.filter(compV).length, tier:Math.min(...its.map(tierDe)), parr:its[0].parroquia}))
+        .sort((a,b)=>b.sal-a.sal);
+      let h=`<tr class="oficina" style="cursor:pointer" data-rutatoggle="${ri}">
+        <td style="text-align:left"><span class="tw"><span class="tg" id="rtg${ri}"><svg class="ic"><use href="#i-chev"/></svg></span><span class="ord" style="margin-right:8px">${ri+1}</span><b>${esc(rg.ruta)}</b></span></td>
+        <td style="text-align:left" colspan="2">${int0(rg.its.length)} clientes · ${barriosG.length} barrio${barriosG.length>1?'s':''}<span class="sub">${barriosG.slice(0,3).map(b=>esc(b.b)).join(' · ')}</span></td>
+        <td colspan="2" style="text-align:right"><b style="color:var(--critico)">Saldo de la ruta: ${money(rg.sal)}</b><span class="sub">vencido ${money0(rg.vt)}</span></td>
+        <td colspan="2">${rg.nComp? `<span class="chip up">⚠ ${rg.nComp} compromiso${rg.nComp>1?'s':''} vencido${rg.nComp>1?'s':''}</span>`:''}</td>
+        <td colspan="2" style="text-align:right"><span class="sub" style="display:inline">clic para desplegar barrios</span></td></tr>`;
+      h+=barriosG.map((bg,bi)=>{
+        const bid=`${ri}_${bi}`;
+        return `<tr class="barrio-row hidden" style="cursor:pointer" data-rgrp="${ri}" data-bartoggle="${bid}">
+          <td style="text-align:right; color:var(--ink-3)">${ri+1}.${bi+1}</td>
+          <td style="text-align:left" colspan="2"><span class="tw"><span class="tg" id="btg${bid}"><svg class="ic"><use href="#i-chev"/></svg></span>${icon('pin')} <b>${esc(bg.b)}</b><span class="sub" style="display:inline; margin-left:6px">${esc(bg.parr)} · ${int0(bg.its.length)} cliente${bg.its.length>1?'s':''}</span></span></td>
+          <td colspan="2" style="text-align:right"><b>Saldo: ${money(bg.sal)}</b><span class="sub">vencido ${money0(bg.vt)}</span></td>
+          <td>${TIERS[bg.tier]? `<span class="pill ${TIERS[bg.tier].css}">${TIERS[bg.tier].lbl}</span>`:''}</td>
+          <td colspan="2">${bg.nComp? `<span class="chip up">⚠ ${bg.nComp} comp. vencido${bg.nComp>1?'s':''}</span>`:''}</td>
+          <td style="text-align:right"><span class="sub" style="display:inline">clic: clientes</span></td></tr>`+
+        bg.its.map((x,k)=>{ const acc=accionDe(x);
+          return `<tr class="hidden" data-bgrp="${bid}"><td style="text-align:right; color:var(--ink-3)">${ri+1}.${bi+1}.${k+1}</td>
+          <td style="text-align:left"><b>${esc(x.nombre)}</b><span class="sub">${esc(x.producto)}${x.grupo?' · Grupo: '+esc(x.grupo):''}</span></td>
+          <td style="text-align:left">${esc(x.barrio)}<span class="sub">${esc(x.parroquia)}</span></td>
+          <td><b>${x.dias}</b> d</td><td>${chipCal(x.calif)}</td>
+          <td><b>${money(x.vt)}</b></td><td>${money(x.saldo)}</td>
+          <td style="text-align:left">${esc(acc.a)}<span class="sub"><b>Resp.:</b> ${esc(acc.r)}</span></td>
+          <td>${compHTML(x)}</td></tr>`; }).join('');
+      }).join('');
+      return h;
+    }).join('');
+    return `<section class="panel" id="detClientes">
+      <div class="panel-head">${icon('users')}<h2>¿Qué clientes gestionar para mejorar este resultado?</h2>
+      <span class="hint">detalle al ${fmtFecha(S.det.fecha)}</span>${imgBtns('detClientes','Clientes a gestionar '+String(e.nombre))}</div>
+      <div class="banner">${explic}</div>
+      <div class="tbl-wrap" style="padding:0 18px 12px"><table class="det sortable"><thead><tr>
+        <th style="text-align:left">Ruta / Cliente</th><th style="text-align:left">Detalle</th><th style="text-align:left">Barrio</th><th>Días mora</th><th>Calif.</th><th>Valor vencido</th><th>Saldo</th><th style="text-align:left">Acción según instructivo</th><th>Compromiso</th></tr></thead>
+        <tbody>${filasR}</tbody></table></div>
+      <div style="padding:0 18px 16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <button class="btn primario" data-goruta="1" data-ag="${esc(cd.ag)}" data-as="${esc(cd.as)}">${icon('map')}Abrir su hoja de ruta completa (${int0(gest.length)} gestionables)</button>
+      </div>
+    </section>`;
+  })()}
   ${hijos? `<section class="panel">
     <div class="panel-head">${icon(e.tipo==='zona'?'build':'users')}<h2>${e.tipo==='zona'?'Oficinas de la zona':'Asesores de la oficina'}</h2><span class="hint">ordenados por prioridad · clic para abrir su diagnóstico</span>${imgBtns('detHijos','Equipo '+String(e.nombre))}</div>
-    <div class="cards" style="grid-template-columns:1fr"><div class="card" id="detHijos"><table>
+    <div class="cards" style="grid-template-columns:1fr"><div class="card" id="detHijos"><table class="sortable">
       <thead><tr><th>#</th><th>${e.tipo==='zona'?'Oficina':'Asesor'}</th><th>Prioridad</th><th style="text-align:right">Cartera</th><th>CER&gt;1</th><th>Δ CER&gt;1</th><th>Δ Mora 1–30 d</th><th>Banda dominante</th></tr></thead>
       <tbody>${[...hijos].sort((a,b)=>b.score-a.score).map((x,i)=>`<tr>
         <td>${i+1}</td><td>${linkEnt(x)}</td><td>${pillPri(x)}<span class="sub">score ${x.score}</span></td>
@@ -1105,11 +1232,367 @@ function renderDet(id){
   window.scrollTo(0,0);
 }
 
+/* ================================================================
+   HOJA DE RUTA — reporte detalle por cliente (ConsolidadoCreditoMoraDetalle)
+   ================================================================ */
+function parseDetalle(aoa){
+  let hr=aoa.findIndex(r=>r && String(r[0]??'').trim().toUpperCase()==='AGENCIA');
+  if(hr<0) throw new Error('detalle: sin encabezado AGENCIA');
+  let fecha=null;
+  for(let i=0;i<hr;i++){ const a=String(aoa[i]?.[0]??'').toUpperCase(); if(a.includes('ELABORACI')) fecha=parseFecha(aoa[i][1]); }
+  const H=aoa[hr].map(v=>String(v??'').replace(/\s+/g,' ').trim().toUpperCase());
+  const ix=n=>H.findIndex(h=>h.includes(n));
+  const c={ag:ix('AGENCIA'), as:ix('ASESOR'), pa:ix('PARROQUIA'), ba:ix('BARRIO'), pr:ix('PRODUCTO'),
+    cr:ix('CREDITO'), ce:ix('CEDULA'), no:ix('NOMBRES'), mo:ix('MONTO'), sa:ix('SALDO'),
+    di:ix('DIAS'), cu:ix('CUOTAS MORA'), vt:ix('VALOR TOTAL'), es:ix('ESTADO'), ca:ix('CALIFICACION'),
+    gr:ix('GRUPO'), ru:ix('RUTA'), ac:ix('ACTIVIDAD'), fc:ix('COMPROMISO') };
+  const creditos=[];
+  for(let r=hr+1;r<aoa.length;r++){
+    const row=aoa[r]; if(!row || row[c.ag]==null) continue;
+    const dias=num(row[c.di]); if(!dias) continue;
+    const fcv=row[c.fc]? parseFecha(row[c.fc]) : null;
+    creditos.push({
+      agencia:String(row[c.ag]).trim(), asesor:String(row[c.as]??'').trim(),
+      parroquia:String(row[c.pa]??'').trim(), barrio:String(row[c.ba]??'—').trim()||'—',
+      producto:String(row[c.pr]??'').trim(), credito:String(row[c.cr]??'').trim(),
+      nombre:String(row[c.no]??'').trim(), monto:num(row[c.mo]), saldo:num(row[c.sa]),
+      dias, cuotas:num(row[c.cu]), vt:num(row[c.vt]),
+      estado:String(row[c.es]??'').trim().toUpperCase(), calif:String(row[c.ca]??'').trim(),
+      grupo:String(row[c.gr]??'').trim(), ruta:String(row[c.ru]??'').trim()||'SIN RUTA',
+      actividad:String(row[c.ac]??'').trim(), fComp:fcv,
+      judicial:(()=>{ const es=String(row[c.es]??'').toUpperCase(); return es.includes('JUDICIAL') && !es.includes('PREJUDICIAL'); })()
+    });
+  }
+  if(!creditos.length) throw new Error('detalle: sin filas');
+  const agencias=new Map();
+  creditos.forEach(x=>{
+    if(!agencias.has(x.agencia)) agencias.set(x.agencia,new Map());
+    const m=agencias.get(x.agencia);
+    if(!m.has(x.asesor)) m.set(x.asesor,[]);
+    m.get(x.asesor).push(x);
+  });
+  S.det={fecha, creditos, agencias};
+}
+/* prioridad de visita (metodología): P1 contener 1–30 · P2 negociar 31–90 · P3 recuperación dura >90 · P4 judicial (verificación) */
+function tierDe(x){ if(x.judicial) return 4; if(x.dias<=30) return 1; if(x.dias<=90) return 2; return 3; }
+const TIERS={1:{lbl:'P1 · Contener', css:'p1'},2:{lbl:'P2 · Negociar', css:'p2'},3:{lbl:'P3 · Recuperar', css:'p3'},4:{lbl:'P4 · Judicial', css:'p4'}};
+function accionDe(x){
+  if(x.judicial) return {a:'Verificar proceso judicial (no gestión de campo)', r:'Área de Cobranzas'};
+  const d=x.dias;
+  if(d<=5)  return {a:'Llamada de cobranza inmediata', r:'Personal operativo de agencia'};
+  if(d<=15) return {a:'Entregar Aviso de Vencimiento 1 (Anexo 4)', r:'Asesor de Crédito'};
+  if(d<=21) return {a:'Entregar Aviso de Vencimiento 2 (Anexo 5)', r:'Asesor de Crédito'};
+  if(d<=30) return {a:'Entregar Aviso de Vencimiento 3 (Anexo 6)', r:'Asesor + Jefe de Agencia'};
+  if(d<=45) return {a:'Negociar y firmar Acuerdo de Pago (Anexo 7)', r:'Jefe de Agencia (asesor acompaña)'};
+  if(d<=65) return {a:'Notificación Extrajudicial (Anexo 8)', r:'Jefe Zonal + Oficial de Cobranzas'};
+  if(d<=95) return {a:'Cobranza intensiva / empresas externas', r:'Área de Cobranzas'};
+  if(d<=125) return {a:'Preparación etapa judicial · Comité de Mora', r:'Cobranzas + abogados'};
+  return {a:'Gestión extrajudicial intensiva / judicial', r:'Cobranzas / Judicial'};
+}
+const CAL_COLOR={'A-1':'#f2b8b2','A-2':'#f2b8b2','A-3':'#e9948c','B-1':'#dc6f66','B-2':'#dc6f66','C-1':'#c94b43','C-2':'#c94b43','D':'#ab2d26','E':'#7f1712'};
+function chipCal(c){ return c? `<span class="chip" style="background:${CAL_COLOR[c]||'#eee'}; color:#fff">${esc(c)}</span>`:''; }
+function compHTML(x){
+  if(!x.fComp) return '';
+  const vencido = S.det.fecha && x.fComp < S.det.fecha;
+  return `<span class="chip ${vencido?'up':'flat'}" title="Fecha de compromiso">${vencido?'⚠ ':''}Comp. ${fmtFecha(x.fComp)}</span>`;
+}
+function sumVt(list){ return list.reduce((s,x)=>s+x.vt,0); }
+function sumSal(list){ return list.reduce((s,x)=>s+x.saldo,0); }
+const BAND_LIMS=[[1,15],[16,30],[31,60],[61,90],[91,120],[121,Infinity]];
+const enBanda=(dias,bi)=> dias>=BAND_LIMS[bi][0] && dias<=BAND_LIMS[bi][1];
+function clientesDeAsesor(nombre){
+  if(!S.det) return null;
+  const n=String(nombre).trim().toUpperCase();
+  for(const [ag,m] of S.det.agencias){
+    for(const [as,list] of m){ if(as.trim().toUpperCase()===n) return {ag, as, list}; }
+  }
+  return null;
+}
+const TIER_COLOR={1:'#c0271e',2:'#e8930c',3:'#7f1712',4:'#c9cacf'};
+
+/* Etapas de gestión de la metodología (a nivel de territorio) */
+const ETAPAS=[
+  {k:'tel', lbl:'Llamadas',           rango:'1–5 d',   min:1,  max:5,   campo:false, col:'#f2b8b2', prep:null},
+  {k:'av1', lbl:'Aviso 1',            rango:'6–15 d',  min:6,  max:15,  campo:true,  col:'#e9948c', prep:'imprimir Avisos de Vencimiento 1'},
+  {k:'av2', lbl:'Aviso 2',            rango:'16–21 d', min:16, max:21,  campo:true,  col:'#dc6f66', prep:'imprimir Avisos de Vencimiento 2'},
+  {k:'av3', lbl:'Aviso 3',            rango:'22–30 d', min:22, max:30,  campo:true,  col:'#c94b43', prep:'imprimir Avisos de Vencimiento 3 y avisar al Jefe de Agencia'},
+  {k:'acu', lbl:'Acuerdo de Pago',    rango:'31–45 d', min:31, max:45,  campo:true,  col:'#ab2d26', prep:'coordinar Acuerdos de Pago con el Jefe de Agencia'},
+  {k:'not', lbl:'Notificación',       rango:'46–65 d', min:46, max:65,  campo:true,  col:'#8f1f1a', prep:'coordinar Notificaciones Extrajudiciales con Jefe Zonal / Of. de Cobranzas'},
+  {k:'cob', lbl:'Cobranzas',          rango:'66+ d',   min:66, max:1e9, campo:false, col:'#7f1712', prep:null},
+];
+function etapaIdx(x){ if(x.judicial) return -1; return ETAPAS.findIndex(e=>x.dias>=e.min && x.dias<=e.max); }
+function statsRuta(r){
+  const st={ etapas:ETAPAS.map(()=>({n:0, vt:0, sal:0})), jud:0, judVt:0, judSal:0, campoN:0, campoVt:0, campoSal:0, telN:0, compV:0 };
+  r.items.forEach(x=>{
+    const ei=etapaIdx(x);
+    if(ei<0){ st.jud++; st.judVt+=x.vt; st.judSal+=x.saldo; return; }
+    st.etapas[ei].n++; st.etapas[ei].vt+=x.vt; st.etapas[ei].sal+=x.saldo;
+    if(ETAPAS[ei].campo){ st.campoN++; st.campoVt+=x.vt; st.campoSal+=x.saldo; } else if(ei===0) st.telN++;
+    if(x.fComp && S.det.fecha && x.fComp<S.det.fecha) st.compV++;
+  });
+  return st;
+}
+function microBar(st){
+  const tot=st.etapas.reduce((s,e)=>s+e.n,0)+st.jud;
+  if(!tot) return '';
+  let h='<div style="display:flex; gap:1px; height:10px; border-radius:3px; overflow:hidden; min-width:120px">';
+  st.etapas.forEach((e,i)=>{ if(e.n) h+=`<div style="flex:${e.n}; background:${ETAPAS[i].col}" title="${ETAPAS[i].lbl} ${ETAPAS[i].rango}: ${e.n}"></div>`; });
+  if(st.jud) h+=`<div style="flex:${st.jud}; background:#c9cacf" title="Judicial: ${st.jud}"></div>`;
+  return h+'</div>';
+}
+
+/* ---------------- MAPA ESQUEMÁTICO DE RECORRIDO ---------------- */
+function mapaRutasSVG(rutas){
+  const W=1060, labW=96, laneH=118, H=rutas.length*laneH+30;
+  let g='', orden=0, prevX=null, prevY=null;
+  rutas.forEach((r,li)=>{
+    const yC=28+li*laneH+laneH/2-10;
+    // barrios en el mismo orden de gestión que la tabla
+    const porBarrio=new Map();
+    r.items.forEach(x=>{ if(!porBarrio.has(x.barrio)) porBarrio.set(x.barrio,[]); porBarrio.get(x.barrio).push(x); });
+    const barrios=[...porBarrio.entries()].map(([b,its])=>({b, its, vtG:sumVt(its.filter(x=>!x.judicial)),
+      tier:Math.min(...its.map(tierDe)), parr:its[0].parroquia}))
+      .sort((a,b)=>b.vtG-a.vtG);
+    const maxVt=Math.max(...barrios.map(x=>x.vtG),1);
+    const n=barrios.length, step=(W-labW-60)/Math.max(n,1);
+    // etiqueta de carril
+    g+=`<text x="8" y="${yC-6}" font-size="12" font-weight="750" fill="#79241d">${esc(r.ruta)}</text>
+        <text x="8" y="${yC+8}" font-size="9" fill="#8e9095">${money0(r.vtG)} · ${r.items.length} cl.</text>
+        <line x1="${labW-6}" y1="${yC}" x2="${W-20}" y2="${yC}" stroke="#f0e4e2" stroke-width="1.5"/>`;
+    barrios.forEach((bb,i)=>{
+      const x=labW+18+i*step+step/2;
+      const rad=Math.max(9, Math.min(22, 9+13*Math.sqrt(bb.vtG/maxVt)));
+      const col=TIER_COLOR[bb.tier]||'#c9cacf';
+      orden++;
+      // conector desde el nodo anterior (misma ruta: sólido; cambio de ruta: punteado)
+      if(prevX!=null){
+        const dash = (i===0)? '4 4':'';
+        g=`${g}<path d="M ${prevX} ${prevY} ${i===0? `C ${prevX} ${prevY+40}, ${x} ${yC-40}, ${x} ${yC}` : `L ${x} ${yC}`}" fill="none" stroke="#c9a29d" stroke-width="1.6" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+      }
+      const nP1=bb.its.filter(x=>tierDe(x)===1).length;
+      const tt=JSON.stringify([{v:bb.b+' — '+r.ruta},{k:'Parroquia',v:bb.parr||'—'},{k:'Clientes',v:int0(bb.its.length)+(nP1?` (${nP1} en P1)`:'')},{k:'Vencido gestionable',v:money(bb.vtG)},{k:'Prioridad del punto',v:TIERS[bb.tier]?TIERS[bb.tier].lbl:'—'},{k:'Orden de visita',v:'Parada '+orden}]);
+      g+=`<g data-tt='${tt.replace(/'/g,"&#39;")}' style="cursor:default">
+        <circle cx="${x}" cy="${yC}" r="${rad}" fill="${col}" stroke="#fff" stroke-width="2"/>
+        <circle cx="${x-rad+2}" cy="${yC-rad+2}" r="8" fill="#26272b"/>
+        <text x="${x-rad+2}" y="${yC-rad+5}" text-anchor="middle" font-size="8.5" font-weight="700" fill="#fff">${orden}</text>
+        <text x="${x}" y="${yC+rad+11}" text-anchor="middle" font-size="9" font-weight="650" fill="#3a3b40">${esc(bb.b.length>16? bb.b.slice(0,15)+'…':bb.b)}</text>
+        <text x="${x}" y="${yC+rad+21}" text-anchor="middle" font-size="8.5" fill="#8e9095">${moneyK(bb.vtG)} · ${bb.its.length} cl.</text>
+      </g>`;
+      prevX=x; prevY=yC;
+    });
+  });
+  const leg=`<g font-size="9.5" fill="#5b5c61">
+    <circle cx="${labW}" cy="12" r="5" fill="#c0271e"/><text x="${labW+9}" y="15">P1 Contener</text>
+    <circle cx="${labW+92}" cy="12" r="5" fill="#e8930c"/><text x="${labW+101}" y="15">P2 Negociar</text>
+    <circle cx="${labW+186}" cy="12" r="5" fill="#7f1712"/><text x="${labW+195}" y="15">P3 Recuperar</text>
+    <circle cx="${labW+284}" cy="12" r="5" fill="#c9cacf"/><text x="${labW+293}" y="15">P4 Judicial (verificación)</text>
+    <text x="${W-20}" y="15" text-anchor="end">tamaño del punto = monto vencido · número = orden de visita</text></g>`;
+  return `<svg viewBox="0 0 ${W} ${H+14}" role="img">${leg}${g}</svg>`;
+}
+
+function renderRuta(){
+  const cont=$('pg-ruta');
+  if(!S.det){
+    cont.innerHTML=`<div class="mini-drop" onclick="document.getElementById('fileInput').click()">
+      ${icon('map')} <h2 style="margin:8px 0 6px; font-size:17px;">Carga el reporte de detalle por cliente</h2>
+      <p>Arrastra aquí (o haz clic para elegir) el <b>Consolidado Crédito Mora Detalle</b> exportado del Core — el que trae cliente, barrio, ruta y días de mora.</p>
+      <small style="display:block; margin-top:8px; color:var(--ink-3)">La herramienta detecta automáticamente qué reporte es: puedes cargar el 909901 y el detalle en cualquier orden.</small></div>`;
+    return;
+  }
+  const ags=[...S.det.agencias.keys()].sort();
+  if(S.rutaSel.ag && !S.det.agencias.has(S.rutaSel.ag)) S.rutaSel.ag='';
+  const ag=S.rutaSel.ag;
+  const asesores = ag? [...S.det.agencias.get(ag).keys()].sort() : [];
+  if(S.rutaSel.as && !asesores.includes(S.rutaSel.as)) S.rutaSel.as='';
+  const as=S.rutaSel.as;
+
+  let cuerpo='';
+  if(!ag){
+    const rows=ags.map(a=>{
+      const m=S.det.agencias.get(a); const all=[...m.values()].flat();
+      const gest=all.filter(x=>!x.judicial);
+      return {a, nAs:m.size, n:all.length, vt:sumVt(all), vtG:sumVt(gest), jud:all.length-gest.length};
+    }).sort((x,y)=>y.vtG-x.vtG);
+    cuerpo=`<div class="cards" style="grid-template-columns:1fr"><div class="card"><table class="sortable">
+      <thead><tr><th>#</th><th>Agencia</th><th>Asesores</th><th>Créditos en mora</th><th>Valor vencido</th><th>Vencido gestionable</th><th>En judicial</th></tr></thead>
+      <tbody>${rows.map((r,i)=>`<tr style="cursor:pointer" data-hrag="${esc(r.a)}"><td><span class="ord">${i+1}</span></td>
+        <td><b>${esc(r.a)}</b></td><td>${r.nAs}</td><td>${int0(r.n)}</td><td style="text-align:right">${money(r.vt)}</td>
+        <td style="text-align:right"><b>${money(r.vtG)}</b></td><td>${int0(r.jud)} créd.</td></tr>`).join('')}</tbody>
+    </table></div></div>
+    <div class="banner azul">Elige una <b>agencia</b> (clic en la fila o en el selector) y luego un <b>asesor</b> para generar su hoja de ruta.</div>`;
+  } else if(!as){
+    const m=S.det.agencias.get(ag);
+    const rows=[...m.entries()].map(([nombre,list])=>{
+      const gest=list.filter(x=>!x.judicial);
+      const p1=list.filter(x=>tierDe(x)===1);
+      const rutas=[...new Set(list.map(x=>x.ruta))];
+      return {nombre, n:list.length, vtG:sumVt(gest), vtP1:sumVt(p1), nP1:p1.length, jud:list.length-gest.length, rutas:rutas.length};
+    }).sort((x,y)=>y.vtG-x.vtG);
+    cuerpo=`<div class="cards" style="grid-template-columns:1fr"><div class="card"><table class="sortable">
+      <thead><tr><th>#</th><th>Asesor</th><th>Créditos en mora</th><th>Vencido gestionable</th><th>P1 · Contener (1–30 d)</th><th>En judicial</th><th>Rutas</th></tr></thead>
+      <tbody>${rows.map((r,i)=>`<tr style="cursor:pointer" data-hras="${esc(r.nombre)}"><td><span class="ord">${i+1}</span></td>
+        <td><b>${esc(r.nombre)}</b></td><td>${int0(r.n)}</td><td style="text-align:right"><b>${money(r.vtG)}</b></td>
+        <td>${int0(r.nP1)} créd. · ${money0(r.vtP1)}</td><td>${int0(r.jud)}</td><td>${r.rutas}</td></tr>`).join('')}</tbody>
+    </table></div></div>
+    <div class="banner azul">Clic en un <b>asesor</b> para generar su hoja de ruta por rutas y barrios.</div>`;
+  } else {
+    const list=S.det.agencias.get(ag).get(as)||[];
+    const gest=list.filter(x=>!x.judicial);
+    const p1=list.filter(x=>tierDe(x)===1), p2=list.filter(x=>tierDe(x)===2), p3=list.filter(x=>tierDe(x)===3), p4=list.filter(x=>tierDe(x)===4);
+    const compVenc=list.filter(x=>x.fComp && S.det.fecha && x.fComp<S.det.fecha && !x.judicial);
+    // contexto del comparativo 909901 si está cargado
+    let ctx='';
+    if(S.allAsesores && S.allAsesores.length){
+      const ent=S.allAsesores.find(x=>x.nombre.trim().toUpperCase()===as.toUpperCase());
+      if(ent) ctx=`<span style="display:inline-flex; align-items:center; gap:6px">${pillPri(ent)} <span class="sub" style="display:inline">Δ mora temprana del período: <b>${moneyS0(ent.earlyS)}</b> · Δ CER&gt;1: <b>${moneyS0(ent.cums[0].sVar)}</b> (comparativo 909901)</span></span>`;
+    }
+    // rutas ordenadas por impacto gestionable
+    const porRuta=new Map();
+    list.forEach(x=>{ if(!porRuta.has(x.ruta)) porRuta.set(x.ruta,[]); porRuta.get(x.ruta).push(x); });
+    const rutas=[...porRuta.entries()].map(([ruta,items])=>{
+      const gest=items.filter(x=>!x.judicial);
+      return {ruta, items, vtG:sumVt(gest), salG:sumSal(gest)};
+    }).sort((a,b)=>b.salG-a.salG);
+    const resumen=`<div class="cards" style="grid-template-columns:1fr; padding-top:2px"><div class="card" id="hrResumen">
+      <div class="card-head">${icon('pin')}<h3>Orden sugerido de rutas — por impacto de recuperación (vencido gestionable)</h3>${imgBtns('hrResumen','Resumen rutas '+as)}</div>
+      <table class="sortable"><thead><tr><th>Orden</th><th>Ruta</th><th>Clientes</th><th>P1 · 1–30 d</th><th>Saldo de la ruta</th><th>Barrios principales</th></tr></thead>
+      <tbody>${rutas.map((r,i)=>{
+        const nP1=r.items.filter(x=>tierDe(x)===1);
+        const bar=[...r.items.reduce((m,x)=>{ if(!x.judicial) m.set(x.barrio,(m.get(x.barrio)||0)+x.saldo); return m; },new Map()).entries()].sort((a,b)=>b[1]-a[1]).slice(0,3).map(b=>esc(b[0]));
+        return `<tr><td><span class="ord ${r.salG>0?'':'g'}">${i+1}</span></td><td><b>${esc(r.ruta)}</b></td>
+        <td>${r.items.length} <span class="sub" style="display:inline">(${r.items.filter(x=>x.judicial).length} judiciales)</span></td>
+        <td>${nP1.length} créd. · saldo ${money0(sumSal(nP1))}</td>
+        <td style="text-align:right"><b>${money(r.salG)}</b></td><td>${bar.join(' · ')||'—'}</td></tr>`;
+      }).join('')}</tbody></table></div></div>`;
+
+    const bloques=rutas.map((r,i)=>{
+      const porBarrio=new Map();
+      r.items.forEach(x=>{ if(!porBarrio.has(x.barrio)) porBarrio.set(x.barrio,[]); porBarrio.get(x.barrio).push(x); });
+      const barrios=[...porBarrio.entries()].map(([b,its])=>{ const g=its.filter(x=>!x.judicial); return {b, its, vtG:sumVt(g), salG:sumSal(g)}; }).sort((a,b)=>b.salG-a.salG);
+      const filas=barrios.map(bb=>{
+        const its=[...bb.its].sort((a,b)=> tierDe(a)-tierDe(b) || b.vt-a.vt);
+        return `<tr class="barrio-row"><td></td><td colspan="4">${icon('pin')} ${esc(bb.b)} <span class="sub" style="display:inline">· ${esc(its[0].parroquia)}</span></td>
+          <td colspan="2" style="text-align:right">Saldo: <b>${money(bb.salG)}</b></td><td colspan="3"></td></tr>`+
+          its.map(x=>{
+            const t=tierDe(x), acc=accionDe(x);
+            return `<tr>
+            <td class="chk">☐</td>
+            <td><b>${esc(x.nombre)}</b><span class="sub">${esc(x.producto)}${x.grupo? ' · Grupo: '+esc(x.grupo):''}${x.actividad? ' · '+esc(x.actividad):''}</span></td>
+            <td><span class="pill ${TIERS[t].css}">${TIERS[t].lbl}</span></td>
+            <td style="text-align:right"><b>${x.dias}</b> d<span class="sub">${int0(x.cuotas)} cuota${x.cuotas==1?'':'s'}</span></td>
+            <td>${chipCal(x.calif)}</td>
+            <td style="text-align:right"><b>${money(x.vt)}</b></td>
+            <td style="text-align:right">${money(x.saldo)}</td>
+            <td>${esc(acc.a)}<span class="sub"><b>Responsable:</b> ${esc(acc.r)}</span></td>
+            <td>${compHTML(x)}</td>
+            <td class="sub">${esc(x.credito)}</td></tr>`;
+          }).join('');
+      }).join('');
+      return `<div class="plan-of" id="hr_${i}">
+        <div class="plan-of-head"><span class="ord">${i+1}</span><span>${esc(r.ruta)}</span>
+        <span class="foco">${r.items.length} clientes · Saldo de la ruta: <b>${money(r.salG)}</b> · P1: <b>${r.items.filter(x=>tierDe(x)===1).length}</b> · Judiciales: ${r.items.filter(x=>x.judicial).length}</span>
+        ${imgBtns('hr_'+i, as+' '+r.ruta)}</div>
+        <table><thead><tr><th style="width:26px">✔</th><th>Cliente</th><th>Prioridad</th><th style="text-align:right">Mora</th><th>Calif.</th><th style="text-align:right">Valor vencido</th><th style="text-align:right">Saldo</th><th>Acción según instructivo</th><th>Compromiso</th><th>Crédito</th></tr></thead>
+        <tbody>${filas}</tbody></table></div>`;
+    }).join('');
+
+    /* ---- vista de territorio: agenda semanal + carga por ruta ---- */
+    const rStats = rutas.map(r=>({r, st:statsRuta(r)})).sort((a,b)=>b.st.campoSal-a.st.campoSal);
+    const totCampo = rStats.reduce((s,x)=>s+x.st.campoN,0);
+    const totTel = rStats.reduce((s,x)=>s+x.st.telN,0);
+    const totCompV = rStats.reduce((s,x)=>s+x.st.compV,0);
+    // agenda: rutas con trabajo de campo, ordenadas por monto de campo; una por día Lun–Vie
+    const DIAS=['Día 1','Día 2','Día 3','Día 4','Día 5'];
+    const conCampo=[...rStats].filter(x=>x.st.campoN>0).sort((a,b)=>b.st.campoSal-a.st.campoSal);
+    const agendaDias=DIAS.map((dia,i)=>({dia, asig: conCampo.filter((_,j)=> j%DIAS.length===i && j<conCampo.length) }));
+    // si hay menos rutas que días, los días libres se convierten en refuerzo
+    const agendaHTML = `<div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); padding-top:2px" id="hrAgenda">
+      ${agendaDias.map((d,i)=>{
+        if(!d.asig.length){
+          return `<div class="card"><div class="card-head" style="background:#f8f8fa"><h3>${d.dia}</h3></div>
+          <div style="padding:12px 13px; font-size:11.5px; color:var(--ink-2)"><b>Refuerzo y seguimiento</b><br>
+          Re-visita de ${totCompV? `los <b>${int0(totCompV)} compromisos vencidos</b>`:'compromisos'} y de clientes no ubicados en la semana.
+          Registro de gestiones en APP y Core.</div></div>`;
+        }
+        return d.asig.map(({r,st})=>{
+          const chips=ETAPAS.map((e,ei)=> st.etapas[ei].n && e.campo? `<span class="chip flat" style="margin:1px"><span class="sw" style="background:${e.col}; margin-right:4px"></span>${st.etapas[ei].n}× ${e.lbl}</span>`:'').join('');
+          const preps=[...new Set(ETAPAS.filter((e,ei)=>st.etapas[ei].n && e.prep).map(e=>e.prep))];
+          return `<div class="card"><div class="card-head" style="background:var(--rojo-tinte)"><h3>${d.dia} — ${esc(r.ruta)}</h3><span style="margin-left:auto; font-weight:750; font-size:11.5px; color:var(--critico); white-space:nowrap">Saldo ${money0(r.salG)}</span></div>
+          <div style="padding:10px 13px; font-size:11.5px; line-height:1.6">
+            <div style="font-size:16px; font-weight:700">${int0(st.campoN)} visitas de campo</div>
+            <div style="margin:6px 0">${chips||'—'}</div>
+            ${st.compV? `<div><span class="chip up">⚠ ${st.compV} compromiso${st.compV>1?'s':''} vencido${st.compV>1?'s':''}</span> — verificar primero</div>`:''}
+            ${preps.length? `<div class="sub" style="margin-top:6px"><b>Antes de salir:</b> ${esc(preps.join('; '))}.</div>`:''}
+          </div></div>`;
+        }).join('');
+      }).join('')}
+    </div>`;
+    // carga de trabajo por ruta
+    const cargaHTML = `<div class="cards" style="grid-template-columns:1fr; padding-top:2px"><div class="card" id="hrCarga">
+      <div class="card-head">${icon('plan')}<h3>Carga de trabajo por ruta — qué necesita cada territorio según la metodología</h3>${imgBtns('hrCarga','Carga por ruta '+as)}</div>
+      <table class="sortable"><thead><tr><th>Orden</th><th>Ruta</th><th>Composición</th>
+        ${ETAPAS.map(e=>`<th title="${e.lbl} ${e.rango}">${e.lbl}<br><span style="font-weight:400">${e.rango}</span></th>`).join('')}
+        <th>Judicial</th><th>⚠ Comp. venc.</th><th style="text-align:right">Campo del asesor</th></tr></thead>
+      <tbody>${rStats.map(({r,st},i)=>`<tr>
+        <td><span class="ord ${st.campoN?'':'g'}">${i+1}</span></td>
+        <td><b>${esc(r.ruta)}</b><span class="sub">${r.items.length} créditos · saldo ${money0(r.salG)}</span></td>
+        <td>${microBar(st)}</td>
+        ${ETAPAS.map((e,ei)=>`<td style="text-align:center">${st.etapas[ei].n? `<b>${st.etapas[ei].n}</b><span class="sub">${money0(st.etapas[ei].sal)}</span>`:'<span style="color:#c9cacf">—</span>'}</td>`).join('')}
+        <td style="text-align:center">${st.jud? int0(st.jud):'<span style="color:#c9cacf">—</span>'}</td>
+        <td style="text-align:center">${st.compV? `<b style="color:var(--critico)">${st.compV}</b>`:'—'}</td>
+        <td style="text-align:right"><b>${int0(st.campoN)} visitas</b><span class="sub">saldo ${money0(st.campoSal)}</span></td></tr>`).join('')}</tbody>
+      <tfoot><tr style="font-weight:700; background:#fbfbfc"><td></td><td>TOTAL</td><td></td>
+        ${ETAPAS.map((e,ei)=>`<td style="text-align:center">${int0(rStats.reduce((s,x)=>s+x.st.etapas[ei].n,0))}</td>`).join('')}
+        <td style="text-align:center">${int0(rStats.reduce((s,x)=>s+x.st.jud,0))}</td>
+        <td style="text-align:center; color:var(--critico)">${int0(totCompV)}</td>
+        <td style="text-align:right">${int0(totCampo)} visitas · saldo ${money0(rStats.reduce((s,x)=>s+x.st.campoSal,0))}</td></tr></tfoot>
+      </table>
+      <div style="padding:8px 13px; font-size:10.5px; color:var(--ink-3)">Campo del asesor = Avisos 1–3 (6–30 d), Acuerdos de Pago (31–45 d) y acompañamiento a Notificaciones (46–65 d). Las llamadas (1–5 d) son gestión telefónica del personal operativo; los tramos de 66+ días y los judiciales los lleva el Área de Cobranzas — el asesor solo verifica.</div>
+    </div></div>`;
+
+    cuerpo=`
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">${icon('map')}Rutas con trabajo de campo</div><div class="val">${int0(conCampo.length)}</div><div class="delta">de ${int0(rutas.length)} rutas del territorio</div></div>
+      <div class="kpi"><div class="lbl">${icon('users')}Visitas de campo esta semana</div><div class="val">${int0(totCampo)}</div><div class="delta">saldo en gestión de campo: ${money0(rStats.reduce((s,x)=>s+x.st.campoSal,0))}</div></div>
+      <div class="kpi"><div class="lbl">${icon('alert')}Gestión telefónica (1–5 d)</div><div class="val">${int0(totTel)}</div><div class="delta">llamadas diarias con operativo de agencia</div></div>
+      <div class="kpi"><div class="lbl">${icon('check')}Compromisos vencidos</div><div class="val" style="color:${totCompV?'var(--critico)':'var(--bueno)'}">${int0(totCompV)}</div><div class="delta">verificar en Cobranzas antes de visitar</div></div>
+      <div class="kpi"><div class="lbl">${icon('target')}En Cobranzas / Judicial</div><div class="val">${int0(rStats.reduce((s,x)=>s+x.st.etapas[6].n+x.st.jud,0))}</div><div class="delta">no son campo del asesor — solo verificación</div></div>
+    </div>
+    ${ctx? `<div class="banner ambar">${ctx}</div>`:''}
+    <div class="banner azul"><b>Cómo organizar tu semana:</b> cada día trabaja una ruta completa (van ordenadas por dónde recuperas más en campo). En cada ruta la metodología te dice qué llevar: Avisos 1, 2 y 3 para la mora de 6–30 días (ahí evitas el rodamiento), Acuerdos de Pago para 31–45 con tu Jefe de Agencia, y acompañamiento a Notificaciones de 46–65. Las llamadas de 1–5 días se hacen todos los días desde la agencia, y lo de 66+ días o judicial lo lleva Cobranzas — tú solo verificas. Los <b>⚠ compromisos vencidos</b> se revisan en la opción de Cobranzas antes de salir.</div>
+    ${avisoHTML()}
+    <div class="panel-head" style="border-bottom:none; padding-bottom:0">${icon('plan')}<h2 style="font-size:13px">Agenda sugerida de la semana</h2><span class="hint">una ruta por día, de mayor a menor recuperación en campo</span>${imgBtns('hrAgenda','Agenda semanal '+as)}</div>
+    ${agendaHTML}
+    ${cargaHTML}
+    <div style="padding:4px 18px 14px">
+      <button class="btn ${S.ui.hrVista==='clientes'?'act':''}" data-hrvista="1">${icon('users')}${S.ui.hrVista==='clientes'? 'Ocultar el detalle por cliente':'Ver el detalle por cliente (opcional)'}</button>
+    </div>
+    ${S.ui.hrVista==='clientes'? resumen+bloques : ''}`;
+  }
+
+  cont.innerHTML=`<section class="panel">
+    <div class="panel-head">${icon('map')}<h2>Hoja de ruta del asesor — gestión de campo por ruta, barrio y cliente</h2>
+    <span class="hint">detalle al ${fmtFecha(S.det.fecha)} · ${int0(S.det.creditos.length)} créditos en mora cargados${S.zonas.length? ' · cruzado con el comparativo 909901':''}</span></div>
+    <div class="hr-sel">
+      <span class="lb">Agencia</span>
+      <select id="hrAg"><option value="">— elegir —</option>${ags.map(a=>`<option value="${esc(a)}"${a===ag?' selected':''}>${esc(a)}</option>`).join('')}</select>
+      <span class="lb">Asesor</span>
+      <select id="hrAs" ${!ag?'disabled':''}><option value="">${ag?'— todo el equipo —':'— primero la agencia —'}</option>${asesores.map(x=>`<option value="${esc(x)}"${x===as?' selected':''}>${esc(x)}</option>`).join('')}</select>
+      ${as? `<button class="btn" onclick="window.print()">${icon('print')}Imprimir hoja de ruta</button>`:''}
+    </div>
+    ${cuerpo}
+  </section>`;
+  const sa=$('hrAg'), sb=$('hrAs');
+  if(sa) sa.onchange=e=>{ S.rutaSel.ag=e.target.value; S.rutaSel.as=''; renderRuta(); };
+  if(sb) sb.onchange=e=>{ S.rutaSel.as=e.target.value; renderRuta(); };
+}
+
 /* ---------------- ROUTER ---------------- */
 function route(){
-  if(!S.zonas.length) return;
+  if(!S.zonas.length && !S.det) return;
   const h=(location.hash||'#panel').slice(1);
-  const pg = h.startsWith('det:')? 'det' : (['panel','tabla','diag','plan'].includes(h)? h : 'panel');
+  let pg = h.startsWith('det:')? 'det' : (['panel','tabla','diag','plan','ruta'].includes(h)? h : 'panel');
+  if(!S.zonas.length) pg='ruta'; // solo está cargado el detalle
   document.body.dataset.page=pg;
   document.querySelectorAll('nav a[data-pg]').forEach(a=>a.classList.toggle('act', a.dataset.pg===pg));
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
@@ -1118,6 +1601,7 @@ function route(){
   else if(pg==='tabla') renderTabla();
   else if(pg==='diag') renderDiag();
   else if(pg==='plan') renderPlan();
+  else if(pg==='ruta') renderRuta();
   else renderDet(h.slice(4));
 }
 function rerender(){ route(); }
@@ -1196,6 +1680,89 @@ function setupUI(){
         }).catch(err=>{ if(err && err.name==='AbortError'){ act.innerHTML=orig; return; } fail(); });
       }
       return; }
+    const th=e.target.closest('table.sortable thead th');
+    if(th){
+      const table=th.closest('table'); const tbody=table.tBodies[0]; if(!tbody) return;
+      const idx=[...th.parentNode.children].indexOf(th);
+      const dir = th.dataset.sdir==='asc'? 'desc':'asc';
+      table.querySelectorAll('thead th').forEach(x=>x.removeAttribute('data-sdir'));
+      th.dataset.sdir=dir;
+      // árbol jerárquico: nivel 0 (banda/ruta) → nivel 1 (oficina/asesor/barrio) → nivel 2 (cliente)
+      const nivelDe=r=> r.matches('[data-bgrp]')? 2 : r.matches('[data-distgrp],[data-bandgrp],[data-rgrp]')? 1 : 0;
+      const raices=[], fijos=[], ult={};
+      [...tbody.rows].forEach(r=>{
+        if(r.matches('[data-nosort]')){ fijos.push(r); return; }
+        const n=nivelDe(r), nodo={row:r, kids:[]};
+        if(n===0 || !ult[n-1]) raices.push(nodo); else ult[n-1].kids.push(nodo);
+        ult[n]=nodo; for(let k=n+1;k<=2;k++) delete ult[k];
+      });
+      const valor=nodo=>{
+        const c=nodo.row.cells[idx]; if(!c) return NaN;
+        const t=c.innerText.trim().split('\n')[0];
+        if(!t || t==='—') return NaN;
+        return parseFloat(t.replace(/[^\d,.\-]/g,'').replace(/\./g,'').replace(',','.'));
+      };
+      const ordena=nodos=>{
+        nodos.sort((a,b)=>{
+          const va=valor(a), vb=valor(b), na=isNaN(va), nb=isNaN(vb);
+          if(na&&nb){ const ca=a.row.cells[idx], cb=b.row.cells[idx];
+            return (ca&&cb)? ca.innerText.localeCompare(cb.innerText,'es'):0; }
+          if(na) return 1; if(nb) return -1;
+          return dir==='asc'? va-vb : vb-va;
+        });
+        nodos.forEach(x=>ordena(x.kids));
+      };
+      ordena(raices);
+      const anexa=nodos=>nodos.forEach(x=>{ tbody.appendChild(x.row); anexa(x.kids); });
+      anexa(raices);
+      fijos.forEach(r=>tbody.appendChild(r));
+      return; }
+    const dt=e.target.closest('[data-disttoggle]');
+    if(dt){ const i=dt.dataset.disttoggle;
+      document.querySelectorAll(`tr[data-distgrp="${i}"]`).forEach(x=>x.classList.toggle('hidden'));
+      const tg=document.getElementById('dtg'+i); if(tg) tg.classList.toggle('open');
+      return; }
+    const bs=e.target.closest('[data-bandsel]');
+    if(bs){ const h=(location.hash||'').slice(1);
+      if(h.startsWith('det:')){ const id=h.slice(4);
+        const prev=(S.ui.detBandaFor===id)? S.ui.detBanda : null;
+        S.ui.detBanda = (prev===+bs.dataset.bandsel)? null : +bs.dataset.bandsel; // clic de nuevo = volver a banda dominante
+        S.ui.detBandaFor = id;
+        renderDet(id);
+      }
+      return; }
+    const bd2=e.target.closest('[data-bandtoggle]');
+    if(bd2){ const i=bd2.dataset.bandtoggle;
+      document.querySelectorAll(`tr[data-bandgrp="${i}"]`).forEach(x=>x.classList.toggle('hidden'));
+      const tg=document.getElementById('btgd'+i); if(tg) tg.classList.toggle('open');
+      return; }
+    const bt=e.target.closest('[data-bartoggle]');
+    if(bt){ const bid=bt.dataset.bartoggle;
+      document.querySelectorAll(`tr[data-bgrp="${bid}"]`).forEach(x=>x.classList.toggle('hidden'));
+      const tg=document.getElementById('btg'+bid); if(tg) tg.classList.toggle('open');
+      return; }
+    const rt=e.target.closest('[data-rutatoggle]');
+    if(rt){ const ri=rt.dataset.rutatoggle;
+      const tg=document.getElementById('rtg'+ri);
+      const abriendo = tg && !tg.classList.contains('open');
+      if(abriendo){
+        document.querySelectorAll(`tr[data-rgrp="${ri}"]`).forEach(x=>x.classList.remove('hidden'));
+      } else {
+        // al contraer la ruta, ocultar barrios y también sus clientes
+        document.querySelectorAll(`tr[data-rgrp="${ri}"]`).forEach(x=>x.classList.add('hidden'));
+        document.querySelectorAll(`tr[data-bgrp^="${ri}_"]`).forEach(x=>x.classList.add('hidden'));
+        document.querySelectorAll(`[id^="btg${ri}_"]`).forEach(x=>x.classList.remove('open'));
+      }
+      if(tg) tg.classList.toggle('open');
+      return; }
+    const hv=e.target.closest('[data-hrvista]');
+    if(hv){ S.ui.hrVista = S.ui.hrVista==='clientes'? 'territorio':'clientes'; renderRuta(); return; }
+    const gr=e.target.closest('[data-goruta]');
+    if(gr){ S.rutaSel.ag=gr.dataset.ag; S.rutaSel.as=gr.dataset.as; location.hash='#ruta'; return; }
+    const hag=e.target.closest('[data-hrag]');
+    if(hag){ S.rutaSel.ag=hag.dataset.hrag; S.rutaSel.as=''; renderRuta(); return; }
+    const has=e.target.closest('[data-hras]');
+    if(has){ S.rutaSel.as=has.dataset.hras; renderRuta(); return; }
     const tz=e.target.closest('[data-tgz]');
     if(tz){ const id=tz.dataset.tgz; S.exp.z.has(id)? S.exp.z.delete(id):S.exp.z.add(id); rerender(); return; }
     const to=e.target.closest('[data-tgo]');
@@ -1213,14 +1780,27 @@ function loadFile(f){
   reader.onload=e=>{
     try{
       const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
-      parseWorkbook(wb);
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const aoa=XLSX.utils.sheet_to_json(ws,{header:1, raw:true, defval:null});
+      // detección automática del tipo de reporte
+      const es909901 = aoa.slice(0,15).some(r=>r && String(r[0]??'').trim().toUpperCase()==='ZONA');
+      const esDetalle = aoa.slice(0,15).some(r=>r && String(r[0]??'').trim().toUpperCase()==='AGENCIA' && r.some(v=>String(v??'').toUpperCase().includes('RUTA')));
+      if(es909901){
+        parseWorkbook(wb);
+        S.scope={zona:'TODAS', oficina:'TODAS', asesor:'TODOS'};
+        renderHead(); fillSelects();
+      } else if(esDetalle){
+        parseDetalle(aoa);
+      } else {
+        throw new Error('No reconozco este archivo. Carga el reporte 909901 (comparativo) o el Consolidado Crédito Mora Detalle (por cliente/ruta).');
+      }
       $('dropzone').classList.add('hidden');
       $('app').classList.remove('hidden');
       $('mainNav').style.display='flex';
-      $('toolbar').style.display='flex';
-      S.scope={zona:'TODAS', oficina:'TODAS', asesor:'TODOS'};
-      renderHead(); fillSelects();
-      if(!location.hash || location.hash==='#') location.hash='#panel'; else route();
+      $('toolbar').style.display = S.zonas.length? 'flex':'none';
+      if(esDetalle){ location.hash='#ruta'; route(); }
+      else if(!location.hash || location.hash==='#') location.hash='#panel';
+      else route();
     }catch(err){ alert('No se pudo procesar el archivo:\n'+err.message); console.error(err); }
   };
   reader.readAsArrayBuffer(f);
